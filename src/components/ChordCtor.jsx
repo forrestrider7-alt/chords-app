@@ -89,11 +89,19 @@ export default function ChordCtor({ onInsert, onClose }) {
   const toggle = useCallback((s, f) => {
     const key = `${s}:${f}`;
     setDots(prev => {
-      const next = { ...prev };
-      if (next[key]) delete next[key]; else next[key] = true;
-      return next;
+      // Removing is always allowed
+      if (prev[key]) {
+        const { [key]: _, ...rest } = prev;
+        return rest;
+      }
+      // Block adding beyond the finger limit (captured from closure; toggle
+      // is recreated whenever barre changes because barre is in dep array)
+      const maxDots = barre !== null ? 3 : 4;
+      const current = Object.values(prev).filter(Boolean).length;
+      if (current >= maxDots) return prev; // silently block — UI shows "Все пальцы заняты"
+      return { ...prev, [key]: true };
     });
-  }, []);
+  }, [barre]); // re-create when barre changes so limit reflects current mode
 
   const clear = () => { setDots({}); setBarre(null); };
 
@@ -102,7 +110,8 @@ export default function ChordCtor({ onInsert, onClose }) {
     const [s, f] = k.split(':').map(Number);
     return { key: k, s, f };
   });
-  const tooMany = barre ? activeDots.length > 3 : activeDots.length > 4;
+  const maxDots  = barre !== null ? 3 : 4;
+  const atLimit  = activeDots.length >= maxDots;
   const result  = recognizeChord(dots, barre);
 
   // Build shape string for insertion
@@ -223,8 +232,8 @@ export default function ChordCtor({ onInsert, onClose }) {
                   <div key={n} className="finger-dot">{n}</div>
                 ))}
               </div>
-              {tooMany && (
-                <div className="fingers-warn">многовато для одной руки</div>
+              {atLimit && (
+                <div className="fingers-warn">Все пальцы заняты</div>
               )}
             </div>
 

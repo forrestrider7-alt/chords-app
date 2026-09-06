@@ -6,19 +6,23 @@ export function useSongs(user) {
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
-    if (!isConfigured || !user) { setSongs([]); return; }
+    if (!isConfigured || !user) { setSongs([]); return []; }
     setLoading(true);
     const { data, error } = await supabase
       .from('songs')
       .select('id,title,body,tone,created_at,updated_at')
       .order('updated_at', { ascending: false });
-    if (!error) setSongs(data ?? []);
+    if (error) { console.error('useSongs.load:', error); }
+    else setSongs(data ?? []);
     setLoading(false);
-    return data;
+    return data ?? [];
   }, [user]);
 
+  // Returns { data, error } so callers can surface failures in the UI
   const save = useCallback(async ({ id, title, body, tone }) => {
-    if (!isConfigured || !user) return null;
+    if (!isConfigured) return { data: null, error: new Error('Supabase не настроен — добавьте VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY в .env') };
+    if (!user)         return { data: null, error: new Error('Не выполнен вход') };
+
     if (id) {
       const { data, error } = await supabase
         .from('songs')
@@ -26,28 +30,25 @@ export function useSongs(user) {
         .eq('id', id)
         .select()
         .single();
-      if (!error) {
-        setSongs(prev => prev.map(s => s.id === id ? data : s));
-        return data;
-      }
-      return null;
+      if (error) { console.error('useSongs.save (update):', error); return { data: null, error }; }
+      setSongs(prev => prev.map(s => s.id === id ? data : s));
+      return { data, error: null };
     } else {
       const { data, error } = await supabase
         .from('songs')
         .insert({ title, body, tone, user_id: user.id })
         .select()
         .single();
-      if (!error) {
-        setSongs(prev => [data, ...prev]);
-        return data;
-      }
-      return null;
+      if (error) { console.error('useSongs.save (insert):', error); return { data: null, error }; }
+      setSongs(prev => [data, ...prev]);
+      return { data, error: null };
     }
   }, [user]);
 
   const remove = useCallback(async (id) => {
     if (!isConfigured || !user) return;
-    await supabase.from('songs').delete().eq('id', id);
+    const { error } = await supabase.from('songs').delete().eq('id', id);
+    if (error) { console.error('useSongs.remove:', error); return; }
     setSongs(prev => prev.filter(s => s.id !== id));
   }, [user]);
 

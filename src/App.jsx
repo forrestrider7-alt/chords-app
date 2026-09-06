@@ -62,7 +62,8 @@ export default function App() {
     clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       const tone  = detectKey(transposeText(text, off)) ?? '?';
-      const saved = await saveSong({ id: currentIdRef.current, title: ttl, body: text, tone });
+      const { data: saved, error } = await saveSong({ id: currentIdRef.current, title: ttl, body: text, tone });
+      if (error) { setSavedAt(`⚠ ${error.message}`); return; }
       if (saved) {
         setCurrentId(saved.id);
         const now = new Date();
@@ -189,10 +190,15 @@ export default function App() {
   }
 
   async function handleSave() {
-    if (!isConfigured || !user) { setAuthOpen(true); return; }
+    if (!user) { setAuthOpen(true); return; }
     clearTimeout(saveTimerRef.current);
     const tone = detectKey(transposeText(rawText, offset)) ?? '?';
-    const saved = await saveSong({ id: currentIdRef.current, title, body: rawText, tone });
+    const { data: saved, error } = await saveSong({ id: currentIdRef.current, title, body: rawText, tone });
+    if (error) {
+      setSavedAt(`⚠ ${error.message}`);
+      console.error('handleSave:', error);
+      return;
+    }
     if (saved) {
       setCurrentId(saved.id);
       const now = new Date();
@@ -326,7 +332,7 @@ export default function App() {
 
           <div className="ed-status">
             <span id="st-counts">строк: {lineCount} &nbsp; аккордов: {chordCount}</span>
-            <span className="saved-ok">{savedAt}</span>
+            <span className={savedAt.startsWith('⚠') ? 'save-err' : 'saved-ok'}>{savedAt}</span>
           </div>
         </div>
 

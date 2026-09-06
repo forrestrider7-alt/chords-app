@@ -34,7 +34,19 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(screencapture /tmp/kodo_scroll.png)",
-      "Bash(screencapture /tmp/kodo_v3.png)"
+      "Bash(screencapture /tmp/kodo_v3.png)",
+      "Bash(npx plugins *)",
+      "Bash(screencapture /tmp/test_filled.png)",
+      "Bash(screencapture /tmp/test_empty.png)",
+      "Bash(screencapture /tmp/test_empty2.png)",
+      "Bash(screencapture /tmp/test_ctor.png)",
+      "Bash(screencapture /tmp/test_ctor2.png)",
+      "Bash(screencapture -R \"140,110,420,330\" /tmp/test_ctor_zoom.png)",
+      "Bash(screencapture /tmp/test_full.png)",
+      "Bash(screencapture -o /tmp/arc_window.png)",
+      "Bash(screencapture /tmp/arc2.png)",
+      "Bash(screencapture /tmp/test_parse.png)",
+      "Bash(screencapture /tmp/test_default.png)"
     ]
   }
 }

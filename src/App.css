@@ -13,7 +13,7 @@
 /* ── Reset ─────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body, #root { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
+html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
 
 body {
   background: var(--bg);
@@ -21,6 +21,16 @@ body {
   color: var(--dark);
   display: flex;
   flex-direction: column;
+}
+
+/* #root must fill body and act as the flex spine for header + main */
+#root {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* ── Header ─────────────────────────────────────────────────────── */
@@ -142,7 +152,8 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
   font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
   color: rgba(239,227,203,.45); flex-shrink: 0;
 }
-.saved-ok { color: var(--green); font-weight: 600; }
+.saved-ok  { color: var(--green); font-weight: 600; }
+.save-err  { color: #c0392b; font-weight: 600; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Preview panel ───────────────────────────────────────────────── */
 #prev-panel {
@@ -274,12 +285,16 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
 
 .fb-wrap {
   position: relative; width: 165px; margin: 0 auto;
-  /* Grid: 4 rows × 6 cols */
+  /* Internal grid lines via gradient; right+bottom close the frame */
   background-image:
     repeating-linear-gradient(to right, var(--dark) 0 1.5px, transparent 1.5px 33px),
     repeating-linear-gradient(to bottom, var(--dark) 0 1.5px, transparent 1.5px 42px);
-  background-size: 165px 168px;
   height: 168px;
+  /* The gradient starts at x=0 (left line) and y=0 (top line).
+     The 6th string (x=165) and bottom fret (y=168) fall exactly at the
+     container edge and get clipped — so we add explicit edge borders. */
+  border-right: 1.5px solid var(--dark);
+  border-bottom: 1.5px solid var(--dark);
 }
 .fb-row { display: grid; grid-template-columns: repeat(6, 1fr); height: 42px; }
 .fb-cell { display: flex; align-items: center; justify-content: center; cursor: pointer; }
