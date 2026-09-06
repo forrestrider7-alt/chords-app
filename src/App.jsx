@@ -96,7 +96,7 @@ export default function App() {
     }
   }
 
-  // "Добавить аккорд" quick insert
+  // ── Quick editor inserts ─────────────────────────────────────────
   function insertBrackets() {
     const ta = editorRef.current;
     if (!ta) return;
@@ -105,6 +105,45 @@ export default function App() {
     setRawText(v);
     requestAnimationFrame(() => {
       ta.selectionStart = ta.selectionEnd = p + 1;
+      ta.focus();
+    });
+  }
+
+  function insertSection() {
+    const ta = editorRef.current;
+    if (!ta) return;
+    const p = ta.selectionStart;
+    // Ensure the line starts on its own line
+    const before = ta.value.slice(0, p);
+    const prefix = before.length > 0 && !before.endsWith('\n') ? '\n' : '';
+    const tag = '{Название}';
+    const v = before + prefix + tag + '\n' + ta.value.slice(ta.selectionEnd);
+    setRawText(v);
+    // Select "Название" so the user can overtype it immediately
+    const selStart = p + prefix.length + 1;           // skip '{'
+    const selEnd   = selStart + 'Название'.length;
+    requestAnimationFrame(() => {
+      ta.selectionStart = selStart;
+      ta.selectionEnd   = selEnd;
+      ta.focus();
+    });
+  }
+
+  function insertShape() {
+    const ta = editorRef.current;
+    if (!ta) return;
+    const p = ta.selectionStart;
+    const before = ta.value.slice(0, p);
+    const prefix = before.length > 0 && !before.endsWith('\n') ? '\n' : '';
+    const template = '@Аккорд xxxxxx';
+    const v = before + prefix + template + '\n' + ta.value.slice(ta.selectionEnd);
+    setRawText(v);
+    // Select "Аккорд" so the user can type the chord name right away
+    const selStart = p + prefix.length + 1;           // skip '@'
+    const selEnd   = selStart + 'Аккорд'.length;
+    requestAnimationFrame(() => {
+      ta.selectionStart = selStart;
+      ta.selectionEnd   = selEnd;
       ta.focus();
     });
   }
@@ -266,8 +305,14 @@ export default function App() {
           </div>
 
           <div className="editor-toolbar">
-            <button className="ed-tool-btn" onClick={insertBrackets} title="Вставить [ ] в позицию курсора">
+            <button className="ed-tool-btn" onClick={insertBrackets} title="Вставить [] в позицию курсора">
               [ ] аккорд
+            </button>
+            <button className="ed-tool-btn" onClick={insertSection} title="Вставить заголовок блока">
+              + Секция
+            </button>
+            <button className="ed-tool-btn" onClick={insertShape} title="Вставить шаблон аппликатуры">
+              + Аппликатура
             </button>
           </div>
 
