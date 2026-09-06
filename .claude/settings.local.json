@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:claude.ai)",
+      "Read(//Users/mihailstatsenko/.claude/**)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(xargs cat)",
+      "Bash(env)",
+      "Read(//Users/mihailstatsenko/.config/**)",
+      "Read(//Users/mihailstatsenko/.config/anthropic/**)",
+      "Bash(security find-generic-password *)",
+      "Bash(security find-internet-password *)",
+      "Bash(python3 -c \"import json,sys; [print\\(k\\) for d in [json.loads\\(l\\) for l in sys.stdin if l.strip\\(\\)] for k in \\(d if isinstance\\(d,dict\\) else {}\\)]\")",
+      "Bash(node *)",
+      "Bash(security dump-keychain *)",
+      "mcp__claude-design__read_file",
+      "Bash(open *)",
+      "Bash(screencapture -x /tmp/chords_app.png)",
+      "Bash(screencapture -x /tmp/chords_safari.png)",
+      "Bash(screencapture /tmp/chords_arc.png)",
+      "Bash(osascript -e 'tell application \"Arc\" to activate')",
+      "Bash(screencapture /tmp/chords_focused.png)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5174)",
+      "Bash(screencapture /tmp/kodo1.png)",
+      "Bash(timeout 20 npx vite build --mode development)",
+      "Bash(screencapture -R \"0,0,1440,900\" /tmp/kodo_full.png)",
+      "Bash(screencapture /tmp/kodo2.png)",
+      "Bash(osascript)",
+      "Bash(screencapture /tmp/kodo3.png)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

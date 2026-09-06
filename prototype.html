@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>コード帳 · Аккорды над текстом</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reggae+One&family=Shippori+Mincho+B1:wght@700;800&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#DED2BA;
+  --card:#EFE3CB;
+  --prev-bg:#E3D7BE;
+  --sheet:#F7EEDC;
+  --dark:#17130F;
+  --red:#AC5045;
+  --gold:#DFA05D;
+  --green:#658761;
+  --fs:13;
+}
+
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);font-family:'Zen Kaku Gothic New',system-ui,sans-serif;color:var(--dark);display:flex;flex-direction:column}
+
+/* ── Header ── */
+header{
+  background:var(--card);border-bottom:3px solid var(--dark);
+  padding:10px 22px;display:flex;align-items:flex-end;gap:16px;
+  flex-shrink:0;z-index:10;flex-wrap:wrap;
+}
+.logo{
+  font-family:'Reggae One','Shippori Mincho B1',serif;font-size:46px;
+  line-height:1;color:var(--dark);letter-spacing:.01em;
+  transform:scaleX(.95);transform-origin:left bottom;
+  text-shadow:3px 3px 0 var(--gold);flex-shrink:0;
+}
+.logo-dot{width:12px;height:12px;border-radius:50%;background:var(--red);margin-bottom:7px;flex-shrink:0}
+
+.controls{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;flex:1;justify-content:flex-end;min-width:0}
+.ctrl-group{display:flex;flex-direction:column;gap:4px}
+.ctrl-label{font-size:8px;font-weight:700;letter-spacing:.22em;color:rgba(23,19,15,.55)}
+.ctrl-row{display:flex;align-items:center;gap:7px}
+
+.song-input{
+  width:155px;padding:6px 9px;border:2px solid var(--dark);
+  background:var(--sheet);font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dark);outline:none;
+}
+.song-input:focus{border-color:var(--red)}
+
+.neu-btn{
+  padding:6px 11px;border-radius:13px;background:#F4EAD6;font-weight:900;
+  font-size:13px;color:var(--dark);border:none;cursor:pointer;font-family:inherit;
+  box-shadow:-4px -4px 8px rgba(255,252,243,.9),4px 4px 10px rgba(23,19,15,.18);
+  transition:box-shadow .08s;
+}
+.neu-btn:active{box-shadow:inset 2px 2px 5px rgba(0,0,0,.15),inset -2px -2px 5px rgba(255,255,255,.3)}
+
+.key-pill{
+  padding:5px 12px;border-radius:13px;background:var(--red);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--sheet);
+  box-shadow:inset 4px 4px 8px rgba(0,0,0,.35),inset -4px -4px 8px rgba(255,255,255,.15);
+  min-width:38px;text-align:center;user-select:none;
+}
+
+.tog{padding:9px 13px;border-radius:17px;border:none;cursor:pointer;font-family:inherit;font-size:9px;font-weight:900;letter-spacing:.12em;transition:all .1s}
+.tog-on{background:var(--green);color:var(--sheet);box-shadow:inset 4px 4px 8px rgba(0,0,0,.35),inset -4px -4px 8px rgba(255,255,255,.15)}
+.tog-off{background:#F4EAD6;color:rgba(23,19,15,.62);box-shadow:-5px -5px 10px rgba(255,252,243,.9),5px 5px 12px rgba(23,19,15,.18)}
+
+.act-btn{
+  padding:10px 15px;border-radius:19px;background:#F4EAD6;
+  font-size:9.5px;font-weight:900;letter-spacing:.1em;color:var(--dark);
+  box-shadow:-6px -6px 12px rgba(255,252,243,.9),6px 6px 14px rgba(23,19,15,.18);
+  border:none;cursor:pointer;font-family:inherit;
+}
+.act-btn:active{box-shadow:inset 2px 2px 5px rgba(0,0,0,.15),inset -2px -2px 5px rgba(255,255,255,.3)}
+.act-btn-red{
+  padding:10px 16px;border-radius:19px;background:var(--red);
+  font-size:9.5px;font-weight:900;letter-spacing:.1em;color:var(--sheet);
+  box-shadow:inset 4px 4px 8px rgba(0,0,0,.35),inset -4px -4px 8px rgba(255,255,255,.15);
+  border:none;cursor:pointer;font-family:inherit;
+}
+
+/* ── Main layout ── */
+main{display:grid;grid-template-columns:30fr 70fr;flex:1;overflow:hidden}
+
+/* ── Editor ── */
+#ed-panel{background:var(--dark);display:flex;flex-direction:column;overflow:hidden}
+
+.syn-hint{padding:10px 14px;border-bottom:1px solid rgba(239,227,203,.18);flex-shrink:0}
+.syn-hdr{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.syn-dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.syn-lbl{font-size:8.5px;font-weight:900;letter-spacing:.24em;color:var(--gold)}
+.syn-txt{font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.65;color:rgba(239,227,203,.6)}
+
+textarea{
+  flex:1;background:transparent;border:none;outline:none;resize:none;
+  padding:16px 14px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+  line-height:2.05;color:var(--card);overflow-y:auto;caret-color:var(--gold);
+}
+textarea::-webkit-scrollbar{width:4px}
+textarea::-webkit-scrollbar-thumb{background:rgba(239,227,203,.2)}
+
+.ed-status{
+  padding:9px 14px;border-top:1px solid rgba(239,227,203,.18);
+  display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;color:rgba(239,227,203,.45);flex-shrink:0;
+}
+.saved-ok{color:var(--green);font-weight:600}
+
+/* ── Preview ── */
+#prev-panel{
+  background:var(--prev-bg);padding:24px;
+  display:flex;justify-content:center;align-items:flex-start;
+  overflow-y:auto;position:relative;
+}
+#prev-panel::-webkit-scrollbar{width:6px}
+#prev-panel::-webkit-scrollbar-thumb{background:rgba(23,19,15,.28);border-radius:3px}
+
+.prev-dots{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(23,19,15,.16) 1px,transparent 1px);
+  background-size:9px 9px;
+}
+
+.sheet-card{
+  position:relative;width:680px;max-width:100%;background:var(--sheet);
+  border:2px solid var(--dark);box-shadow:9px 9px 0 rgba(23,19,15,.26);
+  padding:30px 40px;
+}
+
+.sheet-meta{display:flex;justify-content:space-between;font-size:8px;font-weight:700;letter-spacing:.28em;color:rgba(23,19,15,.5);margin-bottom:18px}
+.sheet-title{text-align:center;font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:34px;line-height:1;color:var(--dark);margin-bottom:6px}
+
+.sec-hdr{display:flex;align-items:center;gap:10px;margin:18px 0 10px}
+.sec-line{flex:1;height:0;border-top:1px solid var(--dark)}
+.sec-name{font-size:10px;font-weight:900;letter-spacing:.24em}
+
+.chord-block{font-family:'IBM Plex Mono',monospace;line-height:1.4;margin-bottom:1px}
+.chord-line{font-weight:600;color:var(--red);white-space:pre;min-height:1em}
+.chord-line.bw{color:var(--dark)}
+.lyric-line{color:var(--dark);white-space:pre}
+
+/* ── Diagrams ── */
+.diag-sec{margin-top:28px;border:2px solid var(--dark);background:var(--card)}
+.diag-hdr{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--dark)}
+.diag-hdr-title{font-size:9.5px;font-weight:900;letter-spacing:.22em;color:var(--card)}
+.diag-grid{display:flex;flex-wrap:wrap}
+.diag-item{
+  padding:12px 7px 13px;border-right:1px solid rgba(23,19,15,.28);
+  display:flex;flex-direction:column;align-items:center;gap:8px;min-width:88px;
+}
+.diag-item:last-child{border-right:none}
+.diag-chord-name{font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:20px;line-height:1;color:var(--dark)}
+.diag-code{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:rgba(23,19,15,.6)}
+
+.fb{
+  position:relative;width:80px;height:94px;
+  background-image:
+    repeating-linear-gradient(to right,var(--dark) 0 1.5px,transparent 1.5px 16px),
+    repeating-linear-gradient(to bottom,var(--dark) 0 1.5px,transparent 1.5px 23px);
+}
+.fb-nut{position:absolute;left:-1px;top:-4px;width:calc(100% + 2px);height:4px;background:var(--dark)}
+.fb-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:var(--dark);transform:translate(-50%,-50%)}
+.fb-barre{position:absolute;left:-7px;width:calc(100% + 14px);height:13px;border-radius:6.5px;background:var(--dark)}
+.fb-xo{position:absolute;top:-14px;font-size:9px;font-weight:700;color:rgba(23,19,15,.5);font-family:'IBM Plex Mono',monospace;transform:translateX(-50%)}
+.fb-fret-num{position:absolute;left:-18px;top:-2px;font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(23,19,15,.6)}
+
+/* ── Modals ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(23,19,15,.45);
+  display:none;align-items:center;justify-content:center;z-index:100;
+}
+.overlay.open{display:flex}
+.ov-dots{position:absolute;inset:0;background-image:radial-gradient(rgba(23,19,15,.16) 1px,transparent 1px);background-size:9px 9px}
+
+.modal{
+  position:relative;background:var(--card);border:3px solid var(--dark);
+  box-shadow:8px 8px 0 rgba(23,19,15,.3);
+  max-width:90vw;max-height:82vh;display:flex;flex-direction:column;
+}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--dark);flex-shrink:0}
+.modal-jp{font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:20px;color:var(--card)}
+.modal-ru{font-size:9.5px;font-weight:900;letter-spacing:.2em;color:var(--gold)}
+.modal-close{width:22px;height:22px;border:2px solid var(--card);color:var(--card);font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:transparent;line-height:1}
+
+.modal-body{overflow-y:auto;flex:1;padding:14px;display:flex;flex-direction:column;gap:9px}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(23,19,15,.25)}
+
+.modal-foot{padding:12px 14px;border-top:1px dashed rgba(23,19,15,.35);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-foot-lbl{font-size:8.5px;font-weight:700;letter-spacing:.2em;color:rgba(23,19,15,.55)}
+
+/* Song items */
+.song-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border:2px solid var(--dark);background:var(--card);cursor:pointer}
+.song-item.cur{background:var(--sheet);box-shadow:3px 3px 0 rgba(23,19,15,.2)}
+.s-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.s-info{flex:1;min-width:0}
+.s-name{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-meta{margin-top:2px;font-size:8.5px;font-weight:700;letter-spacing:.18em;color:rgba(23,19,15,.55)}
+.s-badge{padding:4px 8px;background:var(--dark);color:var(--gold);font-size:8px;font-weight:900;letter-spacing:.14em;flex-shrink:0}
+.s-del{width:24px;height:24px;border:2px solid var(--dark);background:transparent;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0;font-family:inherit}
+
+.empty-state{text-align:center;padding:28px 20px}
+.empty-icon{width:96px;height:60px;border:2px solid var(--dark);background:var(--sheet);position:relative;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.empty-icon::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(23,19,15,.13) 0 1px,transparent 1px 5px)}
+.empty-icon-dot{position:relative;width:22px;height:22px;border-radius:50%;background:var(--gold);border:2px solid var(--dark)}
+.empty-jp{font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:17px;color:var(--dark);margin-bottom:5px}
+.empty-ru{font-size:11px;font-weight:500;color:rgba(23,19,15,.7)}
+
+/* ── Chord Constructor ── */
+.ctor-layout{display:flex;gap:20px;padding:18px}
+
+.str-labels{display:flex;justify-content:space-between;width:165px;margin:0 auto 6px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:rgba(23,19,15,.6)}
+.fb-interactive{position:relative;width:165px;height:168px;margin:0 auto;background-image:repeating-linear-gradient(to right,var(--dark) 0 1.5px,transparent 1.5px 33px),repeating-linear-gradient(to bottom,var(--dark) 0 1.5px,transparent 1.5px 42px)}
+.fb-nut-lg{position:absolute;left:-1px;top:-5px;width:calc(100% + 2px);height:5px;background:var(--dark)}
+.fb-barre-lg{position:absolute;left:-8px;width:calc(100% + 16px);height:18px;border-radius:9px;background:var(--red);border:2px solid var(--dark)}
+.fret-labels{display:flex;justify-content:space-between;width:165px;margin:7px auto 0;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:rgba(23,19,15,.5)}
+
+.fret-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,33px);grid-template-rows:repeat(4,42px);left:-16.5px}
+.fret-cell{display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.fret-cell:hover{background:rgba(23,19,15,.06)}
+.fret-cell-dot{
+  width:24px;height:24px;border-radius:50%;background:var(--dark);
+  border:2px solid var(--sheet);color:var(--gold);font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;
+}
+
+.ctor-side{flex:1;display:flex;flex-direction:column;gap:12px}
+.chord-res{border:2px solid var(--dark);background:var(--sheet);padding:12px 14px}
+.chord-res-lbl{font-size:8px;font-weight:900;letter-spacing:.24em;color:rgba(23,19,15,.55);margin-bottom:4px}
+.chord-res-name{font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:36px;line-height:1;color:var(--dark)}
+.chord-res-code{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--red);margin-top:5px}
+
+.barre-btn{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 12px;border-radius:14px;background:#F4EAD6;cursor:pointer;
+  box-shadow:-6px -6px 12px rgba(255,252,243,.9),6px 6px 14px rgba(23,19,15,.18);
+  border:none;width:100%;font-family:inherit;text-align:left;
+}
+.barre-lbl{font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--dark)}
+.barre-sub{font-size:8.5px;font-weight:500;color:rgba(23,19,15,.6);margin-top:1px}
+
+.fingers-box{border:2px solid var(--dark);padding:10px 12px;background:var(--card)}
+.fingers-lbl{font-size:8px;font-weight:900;letter-spacing:.24em;color:rgba(23,19,15,.55);margin-bottom:7px}
+.finger-dots{display:flex;gap:6px}
+.finger-dot{
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(180deg,#2E2822,var(--dark));color:var(--gold);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.14),-2px -2px 4px rgba(253,247,232,.7),3px 3px 6px rgba(23,19,15,.3);
+}
+.ctor-actions{display:flex;gap:8px;margin-top:auto}
+
+/* ── Print ── */
+@media print{
+  body{display:block;height:auto;overflow:visible;background:#F7EEDC}
+  header,main,.overlay{display:none!important}
+  #print-view{display:block!important;padding:52px 60px;background:#F7EEDC}
+}
+#print-view{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:flex-start;gap:12px;flex:none">
+    <div class="logo">コード帳</div>
+    <div class="logo-dot"></div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <div class="ctrl-label">НАЗВАНИЕ · 曲名</div>
+      <input class="song-input" id="song-name" type="text" placeholder="Без названия" value="Дорога домой">
+    </div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">ТОН · 移調</div>
+      <div class="ctrl-row">
+        <button class="neu-btn" onclick="doTranspose(-1)">−1</button>
+        <div class="key-pill" id="key-pill">Am</div>
+        <button class="neu-btn" onclick="doTranspose(+1)">+1</button>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">КЕГЛЬ</div>
+      <div class="ctrl-row">
+        <button class="neu-btn" style="font-size:11px" onclick="doSize(-1)">A−</button>
+        <button class="neu-btn" style="font-size:15px" onclick="doSize(+1)">A+</button>
+      </div>
+    </div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">ЦВЕТНЫЕ АККОРДЫ</div>
+      <div class="ctrl-row">
+        <button class="tog tog-on" id="btn-col-on" onclick="setColored(true)">ВКЛ</button>
+        <button class="tog tog-off" id="btn-col-off" onclick="setColored(false)">ВЫКЛ</button>
+      </div>
+    </div>
+
+    <div class="ctrl-row" style="align-self:flex-end;gap:8px">
+      <button class="act-btn" onclick="cmdSave()">СОХРАНИТЬ</button>
+      <button class="act-btn" onclick="openSongs()">МОИ ПЕСНИ</button>
+      <button class="act-btn" onclick="openCtor()">АККОРД +</button>
+      <button class="act-btn" onclick="cmdNew()">НОВАЯ</button>
+      <button class="act-btn-red" onclick="cmdPrint()">ПЕЧАТЬ / PDF</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="ed-panel">
+    <div class="syn-hint">
+      <div class="syn-hdr"><div class="syn-dot"></div><div class="syn-lbl">СИНТАКСИС · 書き方</div></div>
+      <div class="syn-txt">[Am] — аккорд над словом &nbsp; {Куплет} — блок<br>@Am 002210 — своя аппликатура</div>
+    </div>
+    <textarea id="ed" spellcheck="false" oninput="onInput()" onkeydown="onKey(event)">{Куплет 1}
+Я оставил [Am]свет в окне на [F]ночь,
+чтобы [C]ты нашла обратный [G]путь.
+Ветер [Am]вынес занавеску [F]прочь,
+и не [Dm]дал мне до утра [E]уснуть.
+
+{Припев}
+[F]Дорога домой — [C]длинная строка,
+[Dm]я её пою в [E]полный рост.
+[F]Держит фонарь у [C]виска
+[Dm]горсть [G]перепутанных [Am]звёзд.
+
+{Бридж}
+@Am7 x02010
+[Am7]Тише. [Dm]Ещё две [E]минуты до [Am]сна.</textarea>
+    <div class="ed-status">
+      <span id="st-counts">строк: 0 &nbsp; аккордов: 0</span>
+      <span class="saved-ok" id="st-saved"></span>
+    </div>
+  </div>
+
+  <div id="prev-panel">
+    <div class="prev-dots"></div>
+    <div class="sheet-card" id="sheet"></div>
+  </div>
+</main>
+
+<!-- My Songs Modal -->
+<div class="overlay" id="songs-overlay" onclick="if(event.target===this)closeSongs()">
+  <div class="ov-dots" style="pointer-events:none"></div>
+  <div class="modal" style="width:580px">
+    <div class="modal-hdr">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <div class="modal-jp">曲の棚</div>
+        <div class="modal-ru" id="songs-badge">МОИ ПЕСНИ · 0</div>
+      </div>
+      <button class="modal-close" onclick="closeSongs()">✕</button>
+    </div>
+    <div class="modal-body" id="songs-list"></div>
+    <div class="modal-foot">
+      <div class="modal-foot-lbl">ХРАНИТСЯ ЛОКАЛЬНО</div>
+      <button class="act-btn-red" onclick="closeSongs();cmdNew()">НОВАЯ ПЕСНЯ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chord Constructor Modal -->
+<div class="overlay" id="ctor-overlay" onclick="if(event.target===this)closeCtor()">
+  <div class="ov-dots" style="pointer-events:none"></div>
+  <div class="modal" style="width:600px">
+    <div class="modal-hdr">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <div class="modal-jp">和音づくり</div>
+        <div class="modal-ru">КОНСТРУКТОР АККОРДА</div>
+      </div>
+      <button class="modal-close" onclick="closeCtor()">✕</button>
+    </div>
+    <div class="ctor-layout">
+      <div>
+        <div class="str-labels"><span>E</span><span>A</span><span>D</span><span>G</span><span>B</span><span>e</span></div>
+        <div class="fb-interactive" id="fb-i">
+          <div class="fb-nut-lg"></div>
+          <div class="fb-barre-lg" id="barre-vis" style="display:none;top:11px"></div>
+          <div class="fret-grid" id="fret-grid"></div>
+        </div>
+        <div class="fret-labels"><span>1 ЛАД</span><span>4 ЛАД</span></div>
+      </div>
+      <div class="ctor-side">
+        <div class="chord-res">
+          <div class="chord-res-lbl">РАСПОЗНАНО · 判定</div>
+          <div class="chord-res-name" id="cr-name">—</div>
+          <div class="chord-res-code" id="cr-code">нет аппликатуры</div>
+        </div>
+        <button class="barre-btn" onclick="toggleBarre()">
+          <div>
+            <div class="barre-lbl">БАРРЭ</div>
+            <div class="barre-sub">указательный на весь лад</div>
+          </div>
+          <div class="tog tog-off" id="barre-ind">ВЫКЛ</div>
+        </button>
+        <div class="fingers-box">
+          <div class="fingers-lbl">ПАЛЬЦЫ</div>
+          <div class="finger-dots">
+            <div class="finger-dot">1</div><div class="finger-dot">2</div>
+            <div class="finger-dot">3</div><div class="finger-dot">4</div>
+          </div>
+          <div style="margin-top:7px;font-size:9px;font-weight:500;color:rgba(23,19,15,.6)">Назначаются автоматически: снизу вверх по ладам.</div>
+        </div>
+        <div class="ctor-actions">
+          <button class="act-btn" onclick="clearFb()">СБРОС</button>
+          <button class="act-btn-red" style="flex:1" onclick="insertChord()">ДОБАВИТЬ В ПЕСНЮ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Print view -->
+<div id="print-view">
+  <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid var(--dark);font-size:8px;font-weight:700;letter-spacing:.28em;color:rgba(23,19,15,.55);margin-bottom:22px">
+    <span>コード帳 · KŌDO-CHŌ</span><span id="p-meta"></span>
+  </div>
+  <div id="p-title" style="text-align:center;font-family:'Shippori Mincho B1',serif;font-weight:800;font-size:44px;line-height:1;color:var(--dark);margin-bottom:14px"></div>
+  <div style="display:flex;justify-content:center;margin-bottom:20px"><div style="width:11px;height:11px;border-radius:50%;background:var(--red)"></div></div>
+  <div id="p-content"></div>
+  <div id="p-diags"></div>
+  <div style="margin-top:14px;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--dark);font-size:8px;font-weight:700;letter-spacing:.26em;color:rgba(23,19,15,.5)">
+    <span>СХЕМЫ: ТОЧКА = ПАЛЕЦ · ПОЛОСА = БАРРЭ</span><span>напечатано в «Аккордах над текстом»</span>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────
+const S = {
+  text: '',
+  offset: 0,   // semitone transposition
+  fs: 13,      // font size
+  colored: true,
+  fbDots: {},  // chord constructor dots: "str:fret" -> true
+  barre: false,
+};
+
+// ── Notes ──────────────────────────────────────────────────────────
+const CHROMATIC = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLAT_MAP  = {Db:'C#',Eb:'D#',Fb:'E',Gb:'F#',Ab:'G#',Bb:'A#',Cb:'B'};
+
+function normNote(n){ return FLAT_MAP[n] || n; }
+function shiftNote(n, s){
+  const i = CHROMATIC.indexOf(normNote(n));
+  return i < 0 ? n : CHROMATIC[(i + s + 120) % 12];
+}
+function shiftChord(ch, s){
+  if(!s) return ch;
+  const m = ch.match(/^([A-G][#b]?)(.*)/);
+  return m ? shiftNote(m[1], s) + m[2] : ch;
+}
+function transposeText(txt, s){
+  return txt.replace(/\[([^\]]+)\]/g, (_, c) => '[' + shiftChord(c, s) + ']');
+}
+function firstChord(txt){
+  const m = txt.match(/\[([A-G][#b]?[^[\]]*)\]/);
+  return m ? (m[1].match(/^[A-G][#b]?m?/) || [''])[0] : null;
+}
+
+// ── Parse & render sheet ──────────────────────────────────────────
+function parseText(raw){
+  const blocks = [], shapes = {};
+  for(const line of raw.split('\n')){
+    if(/^@[A-Z]/.test(line)){
+      const m = line.match(/^@(\S+)\s+(\S+)/);
+      if(m) shapes[m[1]] = m[2];
+      continue;
+    }
+    if(/^\{.+\}$/.test(line.trim())){
+      blocks.push({t:'sec', name: line.trim().slice(1,-1).toUpperCase()});
+      continue;
+    }
+    if(!line.trim()){ blocks.push({t:'gap'}); continue; }
+    if(!/\[/.test(line)){
+      blocks.push({t:'lyric', cl:'', ll: line});
+    } else {
+      blocks.push({t:'lyric', ...chordLyricLines(line)});
+    }
+  }
+  return {blocks, shapes};
+}
+
+function chordLyricLines(line){
+  const segs = [];
+  let i=0, acc='', pending=null;
+  while(i < line.length){
+    if(line[i]==='['){
+      const end = line.indexOf(']', i);
+      if(end !== -1){
+        segs.push({chord: pending, text: acc});
+        pending = line.slice(i+1, end); acc = ''; i = end+1; continue;
+      }
+    }
+    acc += line[i++];
+  }
+  segs.push({chord: pending, text: acc});
+
+  let cl='', ll='';
+  for(const seg of segs){
+    if(seg.chord){
+      const w = Math.max(seg.chord.length, seg.text.length);
+      cl += seg.chord.padEnd(w+1);
+      ll += seg.text.padEnd(w+1);
+    } else {
+      cl += ' '.repeat(seg.text.length);
+      ll += seg.text;
+    }
+  }
+  return {cl: cl.trimEnd(), ll: ll.trimEnd()};
+}
+
+function renderSheet(el, raw, opts={}){
+  const {colored=true, fs=13} = opts;
+  const {blocks, shapes} = parseText(raw);
+  el.innerHTML = '';
+
+  // meta header
+  const transposed = S.offset ? transposeText(raw, S.offset) : raw;
+  const key = firstChord(transposed) || '—';
+  el.innerHTML = `
+    <div class="sheet-meta"><span>コード帳 · SONG SHEET</span><span>ТОН ${key} · 1/1</span></div>
+    <div class="sheet-title">${esc(document.getElementById('song-name').value || 'Без названия')}</div>
+  `;
+
+  for(const b of blocks){
+    if(b.t==='sec'){
+      const d=div('sec-hdr');
+      d.innerHTML=`<div class="sec-line"></div><div class="sec-name">${esc(b.name)}</div><div class="sec-line"></div>`;
+      el.appendChild(d);
+    } else if(b.t==='gap'){
+      const g=div(''); g.style.height='9px'; el.appendChild(g);
+    } else {
+      const blk=div('chord-block');
+      if(b.cl){
+        const cl=div('chord-line'+(colored?'':' bw'));
+        cl.style.fontSize=fs+'px'; cl.textContent=b.cl; blk.appendChild(cl);
+      }
+      const ll=div('lyric-line');
+      ll.style.fontSize=fs+'px'; ll.textContent=b.ll||' '; blk.appendChild(ll);
+      el.appendChild(blk);
+    }
+  }
+
+  const uniq = uniqueChords(raw);
+  if(uniq.length) el.appendChild(buildDiags(uniq, shapes));
+}
+
+function uniqueChords(txt){
+  const seen=new Set(), out=[];
+  for(const m of txt.matchAll(/\[([^\]]+)\]/g)){
+    if(!seen.has(m[1])){ seen.add(m[1]); out.push(m[1]); }
+  }
+  return out;
+}
+
+// ── Chord database ─────────────────────────────────────────────────
+// shape = 6 chars, string 6 (E) to string 1 (e): x=muted,0=open,1-9=fret
+const DB = {
+  Am:    {s:'x02210', b:null}, Am7:   {s:'x02010', b:null},
+  Amaj7: {s:'x02120', b:null}, A:     {s:'x02220', b:null},
+  A7:    {s:'x02020', b:null}, Asus2: {s:'x02200', b:null},
+  Bm:    {s:'x24432', b:2},    B7:    {s:'x21202', b:null},
+  C:     {s:'x32010', b:null}, Cm:    {s:'x35543', b:3},
+  C7:    {s:'x32310', b:null}, Cmaj7: {s:'x32000', b:null},
+  D:     {s:'xx0232', b:null}, Dm:    {s:'xx0231', b:null},
+  D7:    {s:'xx0212', b:null}, Dm7:   {s:'xx0211', b:null},
+  E:     {s:'022100', b:null}, Em:    {s:'022000', b:null},
+  E7:    {s:'020100', b:null}, Em7:   {s:'020000', b:null},
+  F:     {s:'133211', b:1},    Fm:    {s:'133111', b:1},
+  Fmaj7: {s:'xx3210', b:null}, F7:    {s:'131211', b:1},
+  G:     {s:'320003', b:null}, Gm:    {s:'310033', b:3},
+  G7:    {s:'320001', b:null}, Gmaj7: {s:'320002', b:null},
+  'A#':  {s:'x13331', b:1},   Bb:    {s:'x13331', b:1},
+  'A#m': {s:'x13321', b:1},   Bbm:   {s:'x13321', b:1},
+  'C#':  {s:'x46664', b:4},   Db:    {s:'x46664', b:4},
+  'C#m': {s:'x46654', b:4},   Dbm:   {s:'x46654', b:4},
+  'D#':  {s:'x68886', b:6},   Eb:    {s:'x68886', b:6},
+  'F#':  {s:'244322', b:2},   Gb:    {s:'244322', b:2},
+  'F#m': {s:'244222', b:2},   Gbm:   {s:'244222', b:2},
+  'G#':  {s:'466544', b:4},   Ab:    {s:'466544', b:4},
+  'G#m': {s:'466444', b:4},   Abm:   {s:'466444', b:4},
+};
+
+function getShape(name, custom={}){
+  if(custom[name]) return {s: custom[name], b:null, custom:true};
+  return DB[name] || null;
+}
+
+function buildDiags(chords, custom={}){
+  const sec = div('diag-sec');
+  sec.innerHTML = `
+    <div class="diag-hdr">
+      <div style="width:9px;height:9px;border-radius:50%;background:var(--gold)"></div>
+      <div class="diag-hdr-title">СХЕМЫ АККОРДОВ</div>
+      <div style="flex:1"></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--gold)">${chords.length} УНИКАЛЬНЫХ</div>
+    </div>
+  `;
+  const grid = div('diag-grid');
+  for(const ch of chords){
+    const sd = getShape(ch, custom);
+    const item = div('diag-item');
+    const nm = div('diag-chord-name'); nm.textContent = ch; item.appendChild(nm);
+    if(sd){
+      item.appendChild(renderFb(sd));
+      const code = div('diag-code');
+      code.textContent = (sd.b && !sd.custom) ? 'баррэ '+roman(sd.b) : sd.s;
+      item.appendChild(code);
+    } else {
+      const ph = div('fb'); ph.style.cssText='width:80px;height:94px;opacity:.25';
+      ph.appendChild(mkEl('div','fb-nut'));
+      item.appendChild(ph);
+      const code = div('diag-code'); code.textContent='?'; item.appendChild(code);
+    }
+    grid.appendChild(item);
+  }
+  sec.appendChild(grid);
+  return sec;
+}
+
+function renderFb(sd){
+  const {s, b} = sd;
+  // s = 6-char string: s[0]=E6 string, s[5]=e string
+  const frets = s.split('').map(c => c==='x' ? null : +c);
+  const active = frets.filter(f => f && f>0);
+  const startFret = b ? b : (active.length && Math.min(...active)>1 ? Math.min(...active) : 1);
+
+  const wrap = div('fb');
+  wrap.style.cssText = 'position:relative;width:80px;height:94px;background-image:repeating-linear-gradient(to right,var(--dark) 0 1.5px,transparent 1.5px 16px),repeating-linear-gradient(to bottom,var(--dark) 0 1.5px,transparent 1.5px 23px)';
+
+  if(startFret===1){
+    wrap.appendChild(mkEl('div','fb-nut'));
+  } else {
+    const fn = mkEl('div','fb-fret-num'); fn.textContent = startFret; wrap.appendChild(fn);
+  }
+
+  if(b){
+    const br = mkEl('div','fb-barre');
+    br.style.top = ((b-startFret)*23+4.5)+'px';
+    wrap.appendChild(br);
+  }
+
+  // string positions: 0,16,32,48,64,80 (each 16px)
+  // fret y centers: (f-startFret)*23+12.5
+  for(let str=0; str<6; str++){
+    const fret = frets[str];
+    const cx = str*16;
+    if(fret===null){
+      const x = mkEl('div','fb-xo'); x.textContent='x'; x.style.left=cx+'px'; wrap.appendChild(x);
+    } else if(fret===0){
+      const o = mkEl('div','fb-xo'); o.textContent='o'; o.style.left=cx+'px'; wrap.appendChild(o);
+    } else {
+      const dot = mkEl('div','fb-dot');
+      const y = (fret-startFret)*23+12.5;
+      dot.style.left = cx+'px'; dot.style.top = y+'px';
+      wrap.appendChild(dot);
+    }
+  }
+  return wrap;
+}
+
+function roman(n){
+  return ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][n]||n;
+}
+
+// ── Editor ─────────────────────────────────────────────────────────
+function onInput(){
+  S.text = document.getElementById('ed').value;
+  refreshPreview(); refreshStatus(); schedAutoSave();
+}
+
+function onKey(e){
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const ta=e.target, p=ta.selectionStart;
+    ta.value = ta.value.slice(0,p)+'  '+ta.value.slice(ta.selectionEnd);
+    ta.selectionStart = ta.selectionEnd = p+2;
+    onInput();
+  }
+}
+
+function refreshPreview(){
+  const raw = S.offset ? transposeText(S.text, S.offset) : S.text;
+  renderSheet(document.getElementById('sheet'), raw, {colored: S.colored, fs: S.fs});
+}
+
+function refreshStatus(){
+  const txt = S.text;
+  const lines = txt.split('\n').filter(l=>l.trim()).length;
+  const chords = (txt.match(/\[[^\]]+\]/g)||[]).length;
+  document.getElementById('st-counts').innerHTML = `строк: ${lines} &nbsp; аккордов: ${chords}`;
+  const transposed = S.offset ? transposeText(txt, S.offset) : txt;
+  const key = firstChord(transposed);
+  if(key) document.getElementById('key-pill').textContent = key;
+}
+
+// ── Controls ───────────────────────────────────────────────────────
+function doTranspose(delta){
+  S.offset = (S.offset + delta + 120) % 12;
+  refreshPreview(); refreshStatus();
+}
+
+function doSize(delta){
+  S.fs = Math.max(10, Math.min(20, S.fs+delta));
+  document.documentElement.style.setProperty('--fs', S.fs+'px');
+  refreshPreview();
+}
+
+function setColored(on){
+  S.colored = on;
+  document.getElementById('btn-col-on').className = 'tog '+(on?'tog-on':'tog-off');
+  document.getElementById('btn-col-off').className = 'tog '+(on?'tog-off':'tog-on');
+  refreshPreview();
+}
+
+// ── Save / Load ────────────────────────────────────────────────────
+let saveTimer = null;
+function schedAutoSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(doAutoSave, 1600); }
+
+function doAutoSave(){
+  const name = document.getElementById('song-name').value.trim()||'Без названия';
+  persistSong(name, S.text);
+  const t=new Date();
+  document.getElementById('st-saved').textContent =
+    `СОХРАНЕНО ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+}
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function persistSong(name, text){
+  const songs = loadAllSongs();
+  const idx = songs.findIndex(s=>s.name===name);
+  const entry = {name, text, date:new Date().toISOString(),
+    chords:(text.match(/\[[^\]]+\]/g)||[]).length,
+    key: firstChord(text)||'?'};
+  if(idx>=0) songs[idx]=entry; else songs.unshift(entry);
+  localStorage.setItem('k-songs', JSON.stringify(songs));
+}
+
+function loadAllSongs(){
+  try{ return JSON.parse(localStorage.getItem('k-songs')||'[]'); } catch{ return []; }
+}
+
+function cmdSave(){ doAutoSave(); }
+
+function cmdNew(){
+  document.getElementById('song-name').value = '';
+  document.getElementById('ed').value = '';
+  S.text = ''; S.offset = 0;
+  document.getElementById('st-saved').textContent = '';
+  document.getElementById('key-pill').textContent = '—';
+  refreshPreview(); refreshStatus();
+}
+
+// ── My Songs modal ──────────────────────────────────────────────────
+function openSongs(){
+  const songs = loadAllSongs();
+  document.getElementById('songs-badge').textContent = `МОИ ПЕСНИ · ${songs.length}`;
+  const list = document.getElementById('songs-list');
+  list.innerHTML = '';
+
+  if(!songs.length){
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon"><div class="empty-icon-dot"></div></div>
+        <div class="empty-jp">まだ空っぽ</div>
+        <div class="empty-ru">Пока пусто. Напишите первую песню — она появится здесь.</div>
+      </div>`;
+  } else {
+    const cur = document.getElementById('song-name').value;
+    for(const song of songs){
+      const active = song.name===cur;
+      const item = div('song-item'+(active?' cur':''));
+      const d = new Date(song.date);
+      const ds = d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'}).toUpperCase();
+      item.innerHTML = `
+        <div class="s-dot" style="background:${active?'var(--red)':'transparent'};border:2px solid ${active?'var(--red)':'var(--dark)'}"></div>
+        <div class="s-info">
+          <div class="s-name">${esc(song.name)}</div>
+          <div class="s-meta">${ds} · ТОН ${song.key} · ${song.chords} АКК.</div>
+        </div>
+        ${active?'<div class="s-badge">ОТКРЫТА</div>':''}
+        <button class="s-del" title="Удалить" onclick="delSong(event,'${esc(song.name)}')">✕</button>
+      `;
+      item.querySelector('.s-info').addEventListener('click', ()=>loadSong(song.name));
+      list.appendChild(item);
+    }
+  }
+  document.getElementById('songs-overlay').classList.add('open');
+}
+
+function closeSongs(){ document.getElementById('songs-overlay').classList.remove('open'); }
+
+function loadSong(name){
+  const songs = loadAllSongs();
+  const song = songs.find(s=>s.name===name);
+  if(!song) return;
+  document.getElementById('song-name').value = song.name;
+  document.getElementById('ed').value = song.text;
+  S.text = song.text; S.offset = 0;
+  refreshPreview(); refreshStatus();
+  closeSongs();
+}
+
+function delSong(e, name){
+  e.stopPropagation();
+  const songs = loadAllSongs().filter(s=>s.name!==name);
+  localStorage.setItem('k-songs', JSON.stringify(songs));
+  openSongs();
+}
+
+// ── Print ───────────────────────────────────────────────────────────
+function cmdPrint(){
+  const raw = S.offset ? transposeText(S.text, S.offset) : S.text;
+  const {blocks, shapes} = parseText(raw);
+  const key = firstChord(raw)||'?';
+
+  document.getElementById('p-title').textContent = document.getElementById('song-name').value||'Без названия';
+  document.getElementById('p-meta').textContent = `ТОН ${key} · КАПО 0 · ЛИСТ 1/1`;
+
+  const pc = document.getElementById('p-content'); pc.innerHTML='';
+  for(const b of blocks){
+    if(b.t==='sec'){
+      const d=mkEl('div','');
+      d.style.cssText='display:flex;align-items:center;gap:10px;margin:18px 0 10px';
+      d.innerHTML=`<div style="flex:1;height:0;border-top:1px solid var(--dark)"></div><div style="font-size:11px;font-weight:900;letter-spacing:.24em">${esc(b.name)}</div><div style="flex:1;height:0;border-top:1px solid var(--dark)"></div>`;
+      pc.appendChild(d);
+    } else if(b.t==='gap'){
+      const g=mkEl('div',''); g.style.height='9px'; pc.appendChild(g);
+    } else {
+      const blk=mkEl('div',''); blk.style.cssText='font-family:IBM Plex Mono,monospace;line-height:1.4;margin-bottom:2px';
+      if(b.cl){
+        const cl=mkEl('div',''); cl.style.cssText='font-size:14px;font-weight:600;color:var(--red);white-space:pre';
+        cl.textContent=b.cl; blk.appendChild(cl);
+      }
+      const ll=mkEl('div',''); ll.style.cssText='font-size:14px;color:var(--dark);white-space:pre';
+      ll.textContent=b.ll||' '; blk.appendChild(ll);
+      pc.appendChild(blk);
+    }
+  }
+
+  const pd = document.getElementById('p-diags'); pd.innerHTML='';
+  const uniq = uniqueChords(raw);
+  if(uniq.length) pd.appendChild(buildDiags(uniq, shapes));
+
+  document.getElementById('print-view').style.display='block';
+  document.querySelector('header').style.display='none';
+  document.querySelector('main').style.display='none';
+
+  window.print();
+
+  setTimeout(()=>{
+    document.getElementById('print-view').style.display='none';
+    document.querySelector('header').style.display='';
+    document.querySelector('main').style.display='';
+  }, 200);
+}
+
+// ── Chord Constructor ───────────────────────────────────────────────
+// Known shapes for recognition: key = "str:fret,..." sorted by str then fret
+const RECOG = {
+  "2:2,3:2,4:1": ["Am","x02210"],
+  "2:2,4:1":     ["Am7","x02010"],
+  "1:3,2:2,4:1": ["C","x32010"],
+  "0:3,1:2,5:3": ["G","320003"],
+  "3:2,4:3,5:1": ["Dm","xx0231"],
+  "1:2,2:2,3:1": ["E","022100"],
+  "1:2,2:2,3:2": ["A","x02220"],
+  "0:2,1:2,2:2": ["Em","022000"],
+  "1:2,2:2":     ["Em7","020000"],
+  "0:1,1:2,2:3,3:3,4:2,5:1": ["F","133211"],
+};
+
+function openCtor(){
+  buildFretGrid();
+  updateCtorResult();
+  document.getElementById('ctor-overlay').classList.add('open');
+}
+function closeCtor(){ document.getElementById('ctor-overlay').classList.remove('open'); }
+
+function buildFretGrid(){
+  const grid = document.getElementById('fret-grid');
+  grid.innerHTML = '';
+  const fmap = fingerMap();
+  for(let f=1; f<=4; f++){
+    for(let str=0; str<6; str++){
+      const key=`${str}:${f}`;
+      const cell=div('fret-cell');
+      cell.dataset.key=key;
+      if(S.fbDots[key]){
+        const dot=div('fret-cell-dot');
+        dot.textContent=fmap[key]||'';
+        cell.appendChild(dot);
+      }
+      cell.addEventListener('click', ()=>{ toggleDot(key); });
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function toggleDot(key){
+  if(S.fbDots[key]) delete S.fbDots[key]; else S.fbDots[key]=true;
+  buildFretGrid(); updateCtorResult();
+}
+
+function activeDots(){
+  return Object.keys(S.fbDots).filter(k=>S.fbDots[k]).sort((a,b)=>{
+    const [as,af]=a.split(':').map(Number), [bs,bf]=b.split(':').map(Number);
+    return as-bs||af-bf;
+  });
+}
+
+function fingerMap(){
+  const ad=activeDots().slice().sort((a,b)=>{
+    const [,af]=a.split(':').map(Number), [,bf]=b.split(':').map(Number);
+    return af-bf;
+  });
+  const start=S.barre?2:1, map={};
+  ad.forEach((k,i)=>{ map[k]=Math.min(4,start+i); });
+  return map;
+}
+
+function updateCtorResult(){
+  const active=activeDots();
+  const key=active.join(',');
+  const hit=RECOG[key];
+  document.getElementById('cr-name').textContent = hit?hit[0]:(active.length?'?':'—');
+  document.getElementById('cr-code').textContent = hit?hit[1]:(active.length?'не определено':'нет аппликатуры');
+
+  const bv=document.getElementById('barre-vis');
+  if(S.barre && active.length){
+    const minFret=Math.min(...active.map(k=>+k.split(':')[1]));
+    bv.style.top=((minFret-1)*42+11)+'px';
+    bv.style.display='block';
+  } else { bv.style.display='none'; }
+}
+
+function toggleBarre(){
+  S.barre=!S.barre;
+  const ind=document.getElementById('barre-ind');
+  ind.className='tog '+(S.barre?'tog-on':'tog-off');
+  ind.textContent=S.barre?'ВКЛ':'ВЫКЛ';
+  buildFretGrid(); updateCtorResult();
+}
+
+function clearFb(){
+  S.fbDots={}; S.barre=false;
+  const ind=document.getElementById('barre-ind');
+  ind.className='tog tog-off'; ind.textContent='ВЫКЛ';
+  buildFretGrid(); updateCtorResult();
+}
+
+function insertChord(){
+  const active=activeDots();
+  if(!active.length) return;
+  const name=document.getElementById('cr-name').textContent;
+  const code=document.getElementById('cr-code').textContent;
+  const chordName=name==='?'||name==='—'?'Custom':name;
+  const tag=`[${chordName}]`;
+
+  const ta=document.getElementById('ed');
+  const pos=ta.selectionStart||ta.value.length;
+
+  let prefix='';
+  if(!DB[chordName] && name!=='—'){
+    prefix=`@${chordName} ${code}\n`;
+  }
+  ta.value=prefix+ta.value.slice(0,pos)+tag+ta.value.slice(pos);
+  ta.selectionStart=ta.selectionEnd=prefix.length+pos+tag.length;
+  S.text=ta.value;
+  refreshPreview(); refreshStatus();
+  closeCtor();
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────
+function div(cls){ const d=document.createElement('div'); d.className=cls; return d; }
+function mkEl(tag,cls){ const e=document.createElement(tag); e.className=cls; return e; }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── Init ─────────────────────────────────────────────────────────────
+(function init(){
+  S.text=document.getElementById('ed').value;
+  refreshPreview(); refreshStatus();
+
+  document.getElementById('song-name').addEventListener('input', ()=>{ refreshPreview(); schedAutoSave(); });
+
+  document.addEventListener('keydown', e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key==='s'){ e.preventDefault(); cmdSave(); }
+    if(e.key==='Escape'){ closeSongs(); closeCtor(); }
+  });
+})();
+</script>
+</body>
+</html>
