@@ -281,6 +281,22 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
 .ctor-layout { display: flex; gap: 20px; padding: 18px; }
 .ctor-fb { flex-shrink: 0; }
 
+/* String o/x state buttons — one per string column, above the labels */
+.str-ox-row {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  width: 165px; margin: 0 auto 5px;
+}
+.str-ox-btn {
+  width: 20px; height: 20px; border-radius: 50%; margin: 0 auto;
+  border: 1.5px dashed rgba(23,19,15,.3); background: transparent;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700;
+  color: rgba(23,19,15,.35); cursor: pointer; display: flex;
+  align-items: center; justify-content: center; padding: 0; transition: all .1s;
+}
+.str-ox-btn:hover { border-color: rgba(23,19,15,.55); color: rgba(23,19,15,.55); }
+.str-ox-btn.ox-open  { background: var(--dark); border: 1.5px solid var(--dark); color: var(--sheet); }
+.str-ox-btn.ox-muted { background: var(--red);  border: 1.5px solid var(--red);  color: var(--sheet); }
+
 .str-labels { display: flex; justify-content: space-between; width: 165px; margin: 0 auto 5px; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; font-weight: 600; color: rgba(23,19,15,.6); }
 
 .fb-wrap {
@@ -299,6 +315,7 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
 .fb-row { display: grid; grid-template-columns: repeat(6, 1fr); height: 42px; }
 .fb-cell { display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .fb-cell:hover { background: rgba(23,19,15,.07); }
+.fb-cell-barre { cursor: default; pointer-events: none; }
 .fb-dot-active {
   width: 24px; height: 24px; border-radius: 50%; background: var(--dark);
   border: 2px solid var(--sheet); color: var(--gold);

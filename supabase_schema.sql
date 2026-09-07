@@ -13,21 +13,22 @@ create table if not exists songs (
 -- Row Level Security
 alter table songs enable row level security;
 
-create policy "Users can read own songs"
+-- Shared library: any authenticated user can read/write/delete any song
+create policy "Authenticated can select"
   on songs for select
-  using (auth.uid() = user_id);
+  using (auth.role() = 'authenticated');
 
-create policy "Users can insert own songs"
+create policy "Authenticated can insert"
   on songs for insert
-  with check (auth.uid() = user_id);
+  with check (auth.role() = 'authenticated');
 
-create policy "Users can update own songs"
+create policy "Authenticated can update"
   on songs for update
-  using (auth.uid() = user_id);
+  using (auth.role() = 'authenticated');
 
-create policy "Users can delete own songs"
+create policy "Authenticated can delete"
   on songs for delete
-  using (auth.uid() = user_id);
+  using (auth.role() = 'authenticated');
 
 -- Auto-update updated_at on change
 create or replace function update_updated_at()
