@@ -20,7 +20,6 @@ export default function AuthModal({ onAuth, onClose }) {
 
   return (
     <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="ov-dots" style={{ pointerEvents: 'none' }} />
       <div className="modal" style={{ width: 420 }}>
         <div className="modal-hdr">
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>

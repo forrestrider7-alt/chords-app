@@ -1,7 +1,6 @@
 export default function SongsModal({ songs, currentId, loading, onLoad, onDelete, onNew, onClose }) {
   return (
     <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="ov-dots" style={{ pointerEvents: 'none' }} />
       <div className="modal" style={{ width: 580 }}>
         <div className="modal-hdr">
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>

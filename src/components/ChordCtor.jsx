@@ -5,34 +5,39 @@ import {
   getChordShape,
 } from '../lib/chordDb';
 
-const STRINGS = 6;
-const FRETS   = 4;
+const STRINGS    = 6;
+const FRETS      = 4;
 const STR_LABELS = ['E','A','D','G','B','e'];
+
+// SVG fretboard constants — same outer size as the old CSS grid (165×168px)
+const C_COL_W  = 27;          // px between adjacent strings
+const C_PAD    = 15;          // left/right padding (= C_COL_W/2 + half-cell buffer)
+const C_ROW_H  = 42;          // px per fret row
+const C_DOT_R  = 10;          // finger dot radius
+const C_SVG_W  = C_PAD * 2 + C_COL_W * (STRINGS - 1); // 165
+const C_SVG_H  = C_ROW_H * FRETS;                      // 168
+const csx  = s => C_PAD + s * C_COL_W;                 // string x: 15,42,69,96,123,150
+const cfy  = f => (f - 0.5) * C_ROW_H;                 // center y of fret row f (1-based)
+const cfyt = f => (f - 1)   * C_ROW_H;                 // top    y of fret row f (1-based)
 
 function pitch(s, f) {
   return (OPEN_PITCHES[s] + f) % 12;
 }
 
-// Recognize chord from dots, barre, and string o/x state
 function recognizeChord(dots, barre, stringState) {
   const active = [];
 
-  // Explicit fret dots (skip muted strings)
   for (const key of Object.keys(dots)) {
     if (!dots[key]) continue;
     const [s, f] = key.split(':').map(Number);
     if (stringState[s] === 'muted') continue;
     active.push({ s, f });
   }
-
-  // Open-string markers (o) — strings without dots
   for (let s = 0; s < STRINGS; s++) {
     if (stringState[s] !== 'open') continue;
     const hasDot = Object.keys(dots).some(k => parseInt(k.split(':')[0]) === s && dots[k]);
     if (!hasDot) active.push({ s, f: 0 });
   }
-
-  // Barre fills strings with no dot and no explicit o/x
   if (barre !== null) {
     for (let s = 0; s < STRINGS; s++) {
       if (stringState[s] === 'muted' || stringState[s] === 'open') continue;
@@ -42,27 +47,19 @@ function recognizeChord(dots, barre, stringState) {
   }
 
   if (!active.length) return null;
-
   const sorted = [...active].sort((a, b) => a.s - b.s);
   const bassNote = pitch(sorted[0].s, sorted[0].f);
-
   const pitchClasses = new Set();
-  for (const { s, f } of sorted) {
-    pitchClasses.add((pitch(s, f) - bassNote + 12) % 12);
-  }
+  for (const { s, f } of sorted) pitchClasses.add((pitch(s, f) - bassNote + 12) % 12);
   const intervals = [...pitchClasses].sort((a, b) => a - b);
 
-  // Exact match
   for (const { name, intervals: ref } of INTERVAL_SETS) {
-    if (intervals.length === ref.length && intervals.every((v, i) => v === ref[i])) {
+    if (intervals.length === ref.length && intervals.every((v, i) => v === ref[i]))
       return { name: NOTE_NAMES_SHARP[bassNote] + name, exact: true };
-    }
   }
-  // Subset match (one note missing)
   for (const { name, intervals: ref } of INTERVAL_SETS) {
-    if (intervals.every(v => ref.includes(v)) && ref.length - intervals.length <= 1) {
+    if (intervals.every(v => ref.includes(v)) && ref.length - intervals.length <= 1)
       return { name: NOTE_NAMES_SHARP[bassNote] + name, exact: false };
-    }
   }
   return null;
 }
@@ -78,7 +75,7 @@ function assignFingers(dots, barre) {
   return map;
 }
 
-// Strict priority: explicit x > explicit o > fret dot > barre > default x
+// Priority: explicit x > explicit o > fret dot > barre > default x
 function buildShapeStr(dots, barre, stringState) {
   return Array.from({ length: STRINGS }, (_, s) => {
     if (stringState[s] === 'muted') return 'x';
@@ -93,9 +90,8 @@ function buildShapeStr(dots, barre, stringState) {
 export default function ChordCtor({ onInsert, onClose }) {
   const [dots,        setDots]        = useState({});
   const [barre,       setBarre]       = useState(null);
-  const [stringState, setStringState] = useState({}); // { [s]: 'open' | 'muted' }
+  const [stringState, setStringState] = useState({});
 
-  // Cycle: null → 'open' → 'muted' → null; placing o/x removes dots on that string
   function toggleStringState(s) {
     const cur  = stringState[s] ?? null;
     const next = cur === null ? 'open' : cur === 'open' ? 'muted' : null;
@@ -109,7 +105,6 @@ export default function ChordCtor({ onInsert, onClose }) {
     }
   }
 
-  // Set barre and clean up any dots that landed on that fret row
   function handleSetBarre(n) {
     const newBarre = barre === n ? null : n;
     setBarre(newBarre);
@@ -121,7 +116,7 @@ export default function ChordCtor({ onInsert, onClose }) {
   }
 
   const toggle = useCallback((s, f) => {
-    if (barre !== null && f === barre) return; // barre row is not for individual dots
+    if (barre !== null && f === barre) return;
     const key = `${s}:${f}`;
     setDots(prev => {
       if (prev[key]) { const { [key]: _, ...rest } = prev; return rest; }
@@ -129,7 +124,6 @@ export default function ChordCtor({ onInsert, onClose }) {
       if (Object.values(prev).filter(Boolean).length >= maxDots) return prev;
       return { ...prev, [key]: true };
     });
-    // Dot placement clears o/x for this string
     setStringState(prev => {
       if (!prev[s]) return prev;
       const { [s]: _, ...rest } = prev;
@@ -148,7 +142,6 @@ export default function ChordCtor({ onInsert, onClose }) {
   const atLimit  = activeDots.length >= maxDots;
   const result   = recognizeChord(dots, barre, stringState);
   const shapeStr = buildShapeStr(dots, barre, stringState);
-
   const hasContent = activeDots.length > 0 || barre !== null ||
     Object.values(stringState).some(v => v === 'open');
 
@@ -163,7 +156,6 @@ export default function ChordCtor({ onInsert, onClose }) {
 
   return (
     <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="ov-dots" style={{ pointerEvents: 'none' }} />
       <div className="modal" style={{ width: 610 }}>
         <div className="modal-hdr">
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
@@ -176,7 +168,8 @@ export default function ChordCtor({ onInsert, onClose }) {
         <div className="ctor-layout">
           {/* ── Fretboard ── */}
           <div className="ctor-fb">
-            {/* o/x string state row */}
+
+            {/* o/x string state row — absolutely positioned over SVG columns */}
             <div className="str-ox-row">
               {Array.from({ length: STRINGS }, (_, s) => {
                 const st = stringState[s] ?? null;
@@ -184,6 +177,7 @@ export default function ChordCtor({ onInsert, onClose }) {
                   <button
                     key={s}
                     className={`str-ox-btn${st === 'open' ? ' ox-open' : st === 'muted' ? ' ox-muted' : ''}`}
+                    style={{ left: csx(s) }}
                     onClick={() => toggleStringState(s)}
                     title={st === null ? 'Нажмите: открытая' : st === 'open' ? 'Нажмите: заглушённая' : 'Нажмите: сбросить'}
                   >
@@ -193,44 +187,84 @@ export default function ChordCtor({ onInsert, onClose }) {
               })}
             </div>
 
+            {/* String labels — aligned to same x positions */}
             <div className="str-labels">
-              {STR_LABELS.map(l => <span key={l}>{l}</span>)}
+              {STR_LABELS.map((l, s) => (
+                <span key={l} style={{ left: csx(s) }}>{l}</span>
+              ))}
             </div>
 
-            <div className="fb-wrap">
+            {/* SVG fretboard — strings, frets, barre, click cells, dots */}
+            <svg
+              width={C_SVG_W} height={C_SVG_H}
+              viewBox={`0 0 ${C_SVG_W} ${C_SVG_H}`}
+              style={{ display: 'block', overflow: 'visible' }}
+            >
+              {/* Fret lines */}
+              {Array.from({ length: FRETS + 1 }, (_, i) => (
+                <line key={`fl${i}`}
+                  x1={C_PAD} y1={i * C_ROW_H}
+                  x2={C_PAD + C_COL_W * (STRINGS - 1)} y2={i * C_ROW_H}
+                  stroke="#17130F" strokeWidth={i === 0 ? 2.5 : 1.5}
+                />
+              ))}
+
+              {/* String lines */}
+              {Array.from({ length: STRINGS }, (_, s) => (
+                <line key={`sl${s}`}
+                  x1={csx(s)} y1={0}
+                  x2={csx(s)} y2={C_SVG_H}
+                  stroke="#17130F" strokeWidth={1.5}
+                />
+              ))}
+
+              {/* Barre bar */}
               {barre !== null && (
-                <div
-                  className="fb-barre-bar"
-                  style={{ top: `${(barre - 1) / FRETS * 100}%`, height: `${1 / FRETS * 100}%` }}
+                <rect
+                  x={csx(0) - 6}
+                  y={cfy(barre) - 7}
+                  width={C_COL_W * (STRINGS - 1) + 12}
+                  height={14} rx={7}
+                  fill="#AC5045" stroke="#17130F" strokeWidth={1.5}
+                  pointerEvents="none"
                 />
               )}
 
-              {Array.from({ length: FRETS }).map((_, fi) => {
+              {/* Click targets (one rect per cell) */}
+              {Array.from({ length: FRETS }, (_, fi) => {
                 const f = fi + 1;
                 const isBarreFret = barre !== null && f === barre;
-                return (
-                  <div key={f} className="fb-row">
-                    {Array.from({ length: STRINGS }).map((_, s) => {
-                      const key = `${s}:${f}`;
-                      const on  = !!dots[key];
-                      return (
-                        <div
-                          key={s}
-                          className={`fb-cell${isBarreFret ? ' fb-cell-barre' : ''}`}
-                          onClick={() => toggle(s, f)}
-                        >
-                          {on && (
-                            <div className="fb-dot-active">
-                              {fingerMap[key] ?? ''}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
+                return Array.from({ length: STRINGS }, (_, s) => (
+                  <rect
+                    key={`cell-${s}-${f}`}
+                    x={csx(s) - C_COL_W / 2} y={cfyt(f)}
+                    width={C_COL_W} height={C_ROW_H}
+                    fill="transparent"
+                    className="fb-click-cell"
+                    onClick={isBarreFret ? undefined : () => toggle(s, f)}
+                    style={{ cursor: isBarreFret ? 'default' : 'pointer' }}
+                    pointerEvents={isBarreFret ? 'none' : 'all'}
+                  />
+                ));
               })}
-            </div>
+
+              {/* Finger dots — center exactly on string × fret intersection */}
+              {activeDots.map(({ key, s, f }) => (
+                <g key={key} pointerEvents="none">
+                  <circle
+                    cx={csx(s)} cy={cfy(f)}
+                    r={C_DOT_R}
+                    fill="#17130F" stroke="#EFE3CB" strokeWidth={2}
+                  />
+                  <text
+                    x={csx(s)} y={cfy(f) + 3.5}
+                    textAnchor="middle" dominantBaseline="auto"
+                    fontSize="9" fontFamily="IBM Plex Mono, monospace"
+                    fontWeight="700" fill="#DFA05D"
+                  >{fingerMap[key] ?? ''}</text>
+                </g>
+              ))}
+            </svg>
 
             <div className="fret-labels">
               <span>1 ЛАД</span><span>4 ЛАД</span>
@@ -242,10 +276,7 @@ export default function ChordCtor({ onInsert, onClose }) {
             <div className="chord-res">
               <div className="chord-res-lbl">РАСПОЗНАНО · 判定</div>
               <div className="chord-res-name">
-                {result
-                  ? result.name
-                  : hasContent ? '?' : '—'
-                }
+                {result ? result.name : hasContent ? '?' : '—'}
                 {result && !result.exact && <span className="chord-res-approx"> ≈</span>}
               </div>
               <div className="chord-res-code">{shapeStr}</div>
@@ -276,9 +307,7 @@ export default function ChordCtor({ onInsert, onClose }) {
                   <div key={n} className="finger-dot">{n}</div>
                 ))}
               </div>
-              {atLimit && (
-                <div className="fingers-warn">Все пальцы заняты</div>
-              )}
+              {atLimit && <div className="fingers-warn">Все пальцы заняты</div>}
             </div>
 
             <div className="ctor-actions">
