@@ -24,25 +24,28 @@ export function useSongs(user) {
     if (!user)         return { data: null, error: new Error('Не выполнен вход') };
 
     if (id) {
-      const { data, error } = await supabase
+      // Attempt update; fall through to insert if row no longer exists
+      const { data: rows, error } = await supabase
         .from('songs')
         .update({ title, body, tone, updated_at: new Date().toISOString() })
         .eq('id', id)
-        .select()
-        .single();
+        .select();
       if (error) { console.error('useSongs.save (update):', error); return { data: null, error }; }
-      setSongs(prev => prev.map(s => s.id === id ? data : s));
-      return { data, error: null };
-    } else {
-      const { data, error } = await supabase
-        .from('songs')
-        .insert({ title, body, tone, user_id: user.id })
-        .select()
-        .single();
-      if (error) { console.error('useSongs.save (insert):', error); return { data: null, error }; }
-      setSongs(prev => [data, ...prev]);
-      return { data, error: null };
+      if (rows?.length) {
+        setSongs(prev => prev.map(s => s.id === id ? rows[0] : s));
+        return { data: rows[0], error: null };
+      }
+      // 0 rows: song was deleted elsewhere — fall through to insert as new song
     }
+
+    const { data: rows, error } = await supabase
+      .from('songs')
+      .insert({ title, body, tone, user_id: user.id })
+      .select();
+    if (error) { console.error('useSongs.save (insert):', error); return { data: null, error }; }
+    const data = rows?.[0] ?? null;
+    if (data) setSongs(prev => [data, ...prev]);
+    return { data, error: null };
   }, [user]);
 
   const remove = useCallback(async (id) => {

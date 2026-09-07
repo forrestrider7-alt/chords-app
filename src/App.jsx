@@ -194,6 +194,14 @@ export default function App() {
     setSavedAt('');
   }
 
+  function handleDeleteSong(id) {
+    deleteSong(id);
+    if (id === currentIdRef.current) {
+      setCurrentId(null);
+      setSavedAt('');
+    }
+  }
+
   async function handleSave() {
     if (!user) { setAuthOpen(true); return; }
     clearTimeout(saveTimerRef.current);
@@ -391,7 +399,7 @@ export default function App() {
         currentId={currentId}
         loading={songsLoading}
         onLoad={handleLoadSong}
-        onDelete={deleteSong}
+        onDelete={handleDeleteSong}
         onNew={handleNew}
         onClose={() => setSongsOpen(false)}
       />}
