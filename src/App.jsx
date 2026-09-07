@@ -9,25 +9,9 @@ import { useSongs } from './hooks/useSongs';
 import { isConfigured } from './lib/supabase';
 import { exportPDF } from './lib/pdfExport';
 
-const DEFAULT_TEXT = `{Куплет 1}
-Я оставил [Am]свет в окне на [F]ночь,
-чтобы [C]ты нашла обратный [G]путь.
-Ветер [Am]вынес занавеску [F]прочь,
-и не [Dm]дал мне до утра [E]уснуть.
-
-{Припев}
-[F]Дорога домой — [C]длинная строка,
-[Dm]я её пою в [E]полный рост.
-[F]Держит фонарь у [C]виска
-[Dm]горсть [G]перепутанных [Am]звёзд.
-
-{Бридж}
-@Am7 x02010
-[Am7]Тише. [Dm]Ещё две [E]минуты до [Am]сна.`;
-
 export default function App() {
-  const [rawText,   setRawText]   = useState(DEFAULT_TEXT);
-  const [title,     setTitle]     = useState('Дорога домой');
+  const [rawText,   setRawText]   = useState('');
+  const [title,     setTitle]     = useState('');
   const [offset,    setOffset]    = useState(0);   // semitone transpose
   const [fontSize,  setFontSize]  = useState(13);
   const [colored,   setColored]   = useState(true);
@@ -50,7 +34,7 @@ export default function App() {
 
   // Remove neu-init after the page-load reveal animation finishes
   useEffect(() => {
-    const t = setTimeout(() => document.body.classList.remove('neu-init'), 650);
+    const t = setTimeout(() => document.body.classList.remove('neu-init'), 5000);
     return () => clearTimeout(t);
   }, []);
 
@@ -253,8 +237,15 @@ export default function App() {
       {/* ── Header ── */}
       <header>
         <div className="logo-wrap">
-          <div className="logo">コード帳</div>
-          <div className="logo-dot" />
+          <div className="logo-inner">
+            <div className="logo">
+              {'コード帳'.split('').map((ch, i) => (
+                <span key={i} className="logo-char" style={{ '--char-i': i }}>{ch}</span>
+              ))}
+            </div>
+            <div className="logo-dot" />
+          </div>
+          <div className="logo-sub">LEVERLESS SONGBOOK</div>
         </div>
 
         <div className="controls">
@@ -271,39 +262,39 @@ export default function App() {
           <div className="ctrl-group">
             <div className="ctrl-label">ТОН · 移調</div>
             <div className="ctrl-row">
-              <button className="neu-btn" onClick={() => doTranspose(-1)}>−1</button>
-              <div className="key-pill">{currentKey}</div>
-              <button className="neu-btn" onClick={() => doTranspose(+1)}>+1</button>
+              <button className="neu-btn" style={{ '--btn-i': 0 }} onClick={() => doTranspose(-1)}>−1</button>
+              <div className="key-pill" style={{ '--btn-i': 1 }}>{currentKey}</div>
+              <button className="neu-btn" style={{ '--btn-i': 2 }} onClick={() => doTranspose(+1)}>+1</button>
             </div>
           </div>
 
           <div className="ctrl-group">
             <div className="ctrl-label">КЕГЛЬ</div>
             <div className="ctrl-row">
-              <button className="neu-btn" style={{ fontSize: 11 }} onClick={() => setFontSize(s => Math.max(10, s - 1))}>A−</button>
-              <button className="neu-btn" style={{ fontSize: 15 }} onClick={() => setFontSize(s => Math.min(20, s + 1))}>A+</button>
+              <button className="neu-btn" style={{ fontSize: 11, '--btn-i': 3 }} onClick={() => setFontSize(s => Math.max(10, s - 1))}>A−</button>
+              <button className="neu-btn" style={{ fontSize: 15, '--btn-i': 4 }} onClick={() => setFontSize(s => Math.min(20, s + 1))}>A+</button>
             </div>
           </div>
 
           <div className="ctrl-group">
             <div className="ctrl-label">ЦВЕТНЫЕ АККОРДЫ</div>
             <div className="ctrl-row">
-              <button className={`tog ${colored ? 'tog-on' : 'tog-off'}`} onClick={() => setColored(true)}>ВКЛ</button>
-              <button className={`tog ${!colored ? 'tog-on' : 'tog-off'}`} onClick={() => setColored(false)}>ВЫКЛ</button>
+              <button className={`tog ${colored ? 'tog-on' : 'tog-off'}`} style={{ '--btn-i': 5 }} onClick={() => setColored(true)}>ВКЛ</button>
+              <button className={`tog ${!colored ? 'tog-on' : 'tog-off'}`} style={{ '--btn-i': 6 }} onClick={() => setColored(false)}>ВЫКЛ</button>
             </div>
           </div>
 
           <div className="ctrl-row" style={{ alignSelf: 'flex-end', gap: 8 }}>
-            <button className="act-btn" onClick={handleSave}>СОХРАНИТЬ</button>
-            <button className="act-btn" onClick={() => {
+            <button className="act-btn" style={{ '--btn-i': 7 }} onClick={handleSave}>СОХРАНИТЬ</button>
+            <button className="act-btn" style={{ '--btn-i': 8 }} onClick={() => {
               if (!isConfigured) { alert('Supabase не настроен. Добавьте VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY в .env'); return; }
               if (!user) { setAuthOpen(true); return; }
               loadSongs(); setSongsOpen(true);
             }}>МОИ ПЕСНИ</button>
-            <button className="act-btn" onClick={() => setCtorOpen(true)}>АККОРД +</button>
-            <button className="act-btn" onClick={handleNew}>НОВАЯ</button>
-            <button className="act-btn" onClick={handlePrint}>ПЕЧАТЬ</button>
-            <button className="act-btn-red" onClick={handleExportPDF}>ЭКСПОРТ PDF</button>
+            <button className="act-btn" style={{ '--btn-i': 9 }} onClick={() => setCtorOpen(true)}>АККОРД +</button>
+            <button className="act-btn" style={{ '--btn-i': 10 }} onClick={handleNew}>НОВАЯ</button>
+            <button className="act-btn" style={{ '--btn-i': 11 }} onClick={handlePrint}>ПЕЧАТЬ</button>
+            <button className="act-btn-red" style={{ '--btn-i': 12 }} onClick={handleExportPDF}>ЭКСПОРТ PDF</button>
           </div>
 
           {/* Auth badge */}
@@ -331,13 +322,13 @@ export default function App() {
           </div>
 
           <div className="editor-toolbar">
-            <button className="ed-tool-btn" onClick={insertBrackets} title="Вставить [] в позицию курсора">
+            <button className="ed-tool-btn" style={{ '--tool-i': 0 }} onClick={insertBrackets} title="Вставить [] в позицию курсора">
               [ ] аккорд
             </button>
-            <button className="ed-tool-btn" onClick={insertSection} title="Вставить заголовок блока">
+            <button className="ed-tool-btn" style={{ '--tool-i': 1 }} onClick={insertSection} title="Вставить заголовок блока">
               + Секция
             </button>
-            <button className="ed-tool-btn" onClick={insertShape} title="Вставить шаблон аппликатуры">
+            <button className="ed-tool-btn" style={{ '--tool-i': 2 }} onClick={insertShape} title="Вставить шаблон аппликатуры">
               + Аппликатура
             </button>
           </div>

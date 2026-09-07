@@ -46,7 +46,9 @@ header {
   z-index: 10;
 }
 
-.logo-wrap { display: flex; align-items: flex-start; gap: 11px; flex-shrink: 0; }
+.logo-wrap  { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; flex-shrink: 0; }
+.logo-inner { display: flex; align-items: flex-start; gap: 11px; }
+.logo-sub   { font-size: 7px; font-weight: 900; letter-spacing: .32em; color: rgba(23,19,15,.38); padding-left: 1px; }
 .logo {
   font-family: 'Reggae One', 'Shippori Mincho B1', serif;
   font-size: 44px; line-height: 1; color: var(--dark);
@@ -409,12 +411,32 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
 @keyframes dotAppear { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
 @keyframes dotRemove { to   { opacity: 0; transform: scale(0); } }
 
-/* 8. Page-load neumorphic reveal — outset buttons (raise from flat) */
+/* 8. Page-load splash — logo chars spring in */
+@keyframes logoCharIn {
+  from { opacity: 0; transform: translateY(10px) rotate(-7deg) scale(.72); }
+  to   { opacity: 1; transform: translateY(0)    rotate(0)     scale(1);   }
+}
+body.neu-init .logo-char {
+  display: inline-block;
+  animation: logoCharIn 380ms cubic-bezier(.34,1.56,.64,1) both;
+  animation-delay: calc(var(--char-i) * 100ms);
+}
+
+/* 9. Subtitle fade-slide */
+@keyframes logoSubIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body.neu-init .logo-sub {
+  animation: logoSubIn 320ms ease-out both;
+  animation-delay: 700ms;
+}
+
+/* 10. Page-load neumorphic reveal — outset buttons (raise from flat) */
 @keyframes neuRevealOut {
-  /* "to" is implicit: the element's own natural box-shadow value */
   from { box-shadow: none; }
 }
-/* Page-load reveal — inset buttons (can't interpolate none→inset, so start from zero inset) */
+/* Page-load reveal — inset buttons */
 @keyframes neuRevealIn {
   from { box-shadow: inset 0 0 0 rgba(0,0,0,0), inset 0 0 0 rgba(255,255,255,0); }
 }
@@ -423,11 +445,44 @@ body.neu-init .neu-btn,
 body.neu-init .tog-off,
 body.neu-init .sheet-card {
   animation: neuRevealOut 500ms ease-out both;
+  animation-delay: calc(var(--btn-i, 0) * 50ms + 1100ms);
 }
 body.neu-init .act-btn-red,
 body.neu-init .tog-on,
 body.neu-init .key-pill {
   animation: neuRevealIn 500ms ease-out both;
+  animation-delay: calc(var(--btn-i, 0) * 50ms + 1100ms);
+}
+
+/* 11. Editor panel unroll top→bottom */
+@keyframes edPanelReveal {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0%   0); }
+}
+body.neu-init #ed-panel {
+  animation: edPanelReveal 650ms ease-out both;
+  animation-delay: 1900ms;
+}
+
+/* 12. Toolbar buttons stagger left→right */
+@keyframes edToolBtnIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+body.neu-init .ed-tool-btn {
+  animation: edToolBtnIn 280ms ease-out both;
+  animation-delay: calc(var(--tool-i, 0) * 90ms + 2700ms);
+}
+
+/* 13. Textarea + preview final fade */
+@keyframes edContentIn {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body.neu-init textarea,
+body.neu-init #prev-panel {
+  animation: edContentIn 500ms ease-out both;
+  animation-delay: 3300ms;
 }
 
 /* 7. Song list stagger — cap at 12 items to avoid long wait on big libraries */

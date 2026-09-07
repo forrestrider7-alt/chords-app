@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function SongsModal({ songs, currentId, loading, onLoad, onDelete, onNew, onClose }) {
   const [closing, setClosing] = useState(false);
+  const [songsVisible, setSongsVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSongsVisible(true), 400);
+    return () => clearTimeout(t);
+  }, []);
 
   function handleClose() {
     if (closing) return;
@@ -23,10 +29,10 @@ export default function SongsModal({ songs, currentId, loading, onLoad, onDelete
           <button className="modal-close" onClick={handleClose}>✕</button>
         </div>
 
-        <div className="modal-body">
-          {loading && <div className="songs-loading">Загрузка…</div>}
+        <div className="modal-body" style={!songsVisible ? { minHeight: 160 } : {}}>
+          {songsVisible && loading && <div className="songs-loading">Загрузка…</div>}
 
-          {!loading && songs.length === 0 && (
+          {songsVisible && !loading && songs.length === 0 && (
             <div className="empty-state">
               <div className="empty-icon"><div className="empty-icon-dot" /></div>
               <div className="empty-jp">まだ空っぽ</div>
@@ -34,7 +40,7 @@ export default function SongsModal({ songs, currentId, loading, onLoad, onDelete
             </div>
           )}
 
-          {songs.map((song, index) => {
+          {songsVisible && songs.map((song, index) => {
             const isActive = song.id === currentId;
             const d = new Date(song.updated_at || song.created_at);
             const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }).toUpperCase();
