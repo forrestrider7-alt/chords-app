@@ -38,13 +38,14 @@ export default function App() {
   const [authOpen,  setAuthOpen]  = useState(false);
 
   const [savedAt, setSavedAt] = useState('');
+  const [transposePhase, setTransposePhase] = useState('idle'); // 'idle'|'exit'|'enter'
 
-  const editorRef    = useRef(null);
-  const sheetRef     = useRef(null);
-  const saveTimerRef = useRef(null);
-  const currentIdRef = useRef(null);
+  const editorRef       = useRef(null);
+  const sheetRef        = useRef(null);
+  const saveTimerRef    = useRef(null);
+  const currentIdRef    = useRef(null);
+  const transPhaseRef   = useRef('idle'); // guards against re-entrant transposes
 
-  // Keep ref in sync so setTimeout closures always see the latest id
   useEffect(() => { currentIdRef.current = currentId; }, [currentId]);
 
   const { user, loading: authLoading, signInWithEmail, signUpWithEmail, signInWithMagicLink, signOut } = useAuth();
@@ -149,11 +150,24 @@ export default function App() {
     });
   }
 
-  // ── Transpose ────────────────────────────────────────────────────
+  // ── Transpose — slot-machine animation ───────────────────────────
   function doTranspose(delta) {
-    const newOffset = ((offset + delta) % 12 + 12) % 12;
-    setOffset(newOffset);
-    schedSave(rawText, title, newOffset);
+    if (transPhaseRef.current !== 'idle') return; // debounce during animation
+    transPhaseRef.current = 'exit';
+    setTransposePhase('exit');
+
+    setTimeout(() => {
+      const newOffset = ((offset + delta) % 12 + 12) % 12;
+      setOffset(newOffset);
+      schedSave(rawText, title, newOffset);
+      transPhaseRef.current = 'enter';
+      setTransposePhase('enter');
+
+      setTimeout(() => {
+        transPhaseRef.current = 'idle';
+        setTransposePhase('idle');
+      }, 210);
+    }, 120);
   }
 
   // ── Chord constructor insert ──────────────────────────────────────
@@ -346,6 +360,7 @@ export default function App() {
             transposeOffset={offset}
             fontSize={fontSize}
             colored={colored}
+            transposePhase={transposePhase}
           />
         </div>
       </main>

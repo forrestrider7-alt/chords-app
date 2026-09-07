@@ -1,13 +1,26 @@
+import { useState } from 'react';
+
 export default function SongsModal({ songs, currentId, loading, onLoad, onDelete, onNew, onClose }) {
+  const [closing, setClosing] = useState(false);
+
+  function handleClose() {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(onClose, 150);
+  }
+
   return (
-    <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className={`overlay open${closing ? ' closing' : ''}`}
+      onClick={e => { if (e.target === e.currentTarget) handleClose(); }}
+    >
       <div className="modal" style={{ width: 580 }}>
         <div className="modal-hdr">
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
             <span className="modal-jp">曲の棚</span>
             <span className="modal-ru">МОИ ПЕСНИ · {songs.length}</span>
           </div>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={handleClose}>✕</button>
         </div>
 
         <div className="modal-body">
@@ -21,7 +34,7 @@ export default function SongsModal({ songs, currentId, loading, onLoad, onDelete
             </div>
           )}
 
-          {songs.map(song => {
+          {songs.map((song, index) => {
             const isActive = song.id === currentId;
             const d = new Date(song.updated_at || song.created_at);
             const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }).toUpperCase();
@@ -29,7 +42,8 @@ export default function SongsModal({ songs, currentId, loading, onLoad, onDelete
               <div
                 key={song.id}
                 className={`song-item${isActive ? ' cur' : ''}`}
-                onClick={() => { onLoad(song); onClose(); }}
+                style={{ '--item-index': index }}
+                onClick={() => { onLoad(song); handleClose(); }}
               >
                 <div
                   className="s-dot"
@@ -54,7 +68,7 @@ export default function SongsModal({ songs, currentId, loading, onLoad, onDelete
 
         <div className="modal-foot">
           <div className="modal-foot-lbl">ХРАНИТСЯ В SUPABASE</div>
-          <button className="act-btn-red" onClick={() => { onNew(); onClose(); }}>
+          <button className="act-btn-red" onClick={() => { onNew(); handleClose(); }}>
             НОВАЯ ПЕСНЯ
           </button>
         </div>

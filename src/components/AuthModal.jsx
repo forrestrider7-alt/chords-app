@@ -1,12 +1,19 @@
 import { useState } from 'react';
 
 export default function AuthModal({ onAuth, onClose }) {
-  const [mode,    setMode]    = useState('login'); // 'login' | 'signup' | 'magic'
+  const [mode,    setMode]    = useState('login');
   const [email,   setEmail]   = useState('');
   const [pass,    setPass]    = useState('');
   const [error,   setError]   = useState('');
   const [sent,    setSent]    = useState(false);
   const [loading, setLoading] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  function handleClose() {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(onClose, 150);
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -15,18 +22,21 @@ export default function AuthModal({ onAuth, onClose }) {
     setLoading(false);
     if (err) { setError(err.message); return; }
     if (mode === 'magic') { setSent(true); return; }
-    onClose();
+    handleClose();
   }
 
   return (
-    <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className={`overlay open${closing ? ' closing' : ''}`}
+      onClick={e => { if (e.target === e.currentTarget) handleClose(); }}
+    >
       <div className="modal" style={{ width: 420 }}>
         <div className="modal-hdr">
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
             <span className="modal-jp">ログイン</span>
             <span className="modal-ru">ВХОД · РЕГИСТРАЦИЯ</span>
           </div>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={handleClose}>✕</button>
         </div>
 
         <div style={{ padding: '20px 22px' }}>

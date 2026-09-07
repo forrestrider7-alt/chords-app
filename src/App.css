@@ -346,6 +346,74 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
 .auth-field { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
 .auth-error { font-size: 11px; color: var(--red); font-weight: 600; margin-bottom: 4px; }
 
+/* ── Animations ─────────────────────────────────────────────────── */
+
+/* 1. Buttons — scale press */
+.act-btn, .act-btn-red, .neu-btn, .tog, .barre-num,
+.ed-tool-btn, .modal-close, .auth-tab, .auth-out,
+.s-del, .str-ox-btn {
+  transition: box-shadow 120ms ease-out, transform 120ms ease-out, background 100ms ease-out;
+}
+.act-btn:active, .act-btn-red:active, .neu-btn:active, .tog:active,
+.barre-num:active, .ed-tool-btn:active, .modal-close:active,
+.auth-tab:active, .auth-out:active, .s-del:active, .str-ox-btn:active {
+  transform: scale(.97);
+}
+
+/* 2. Modal overlay: fade in / out */
+@keyframes overlayFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes overlayFadeOut { from { opacity: 1; } to { opacity: 0; } }
+.overlay.open    { animation: overlayFadeIn  220ms ease-out both; }
+.overlay.closing { animation: overlayFadeOut 150ms ease-in  both; }
+
+/* 3. Modal box: blur + scale in, shadow delayed until 65% */
+@keyframes modalIn {
+  0%   { opacity: 0; filter: blur(10px); transform: scale(.95); box-shadow: 0 0 0 transparent; }
+  65%  { opacity: 1; filter: blur(0);    transform: scale(1);   box-shadow: 0 0 0 transparent; }
+  100% { opacity: 1; filter: blur(0);    transform: scale(1);   box-shadow: 8px 8px 0 rgba(23,19,15,.3); }
+}
+@keyframes modalOut {
+  from { opacity: 1; transform: scale(1);    }
+  to   { opacity: 0; transform: scale(.96);  }
+}
+.modal {
+  animation: modalIn 280ms cubic-bezier(.22,1,.36,1) both;
+  will-change: transform, filter, opacity;
+}
+.overlay.closing .modal { animation: modalOut 150ms ease-in both; }
+
+/* 4. Chord token: new chord slides in on mount */
+@keyframes chordAppear {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chord-token {
+  display: inline-block;
+  animation: chordAppear 180ms ease-out both;
+}
+/* Suppress per-token animation while transpose phase is active */
+.transposing .chord-token { animation: none !important; }
+
+/* 5. Transpose slot-machine */
+@keyframes transposeExit  { to   { opacity: 0; transform: translateY(-8px); } }
+@keyframes transposeEnter { from { opacity: 0; transform: translateY( 8px); } }
+.transposing-exit  .chord-token { animation: transposeExit  120ms ease-in  both !important; }
+.transposing-enter .chord-token { animation: transposeEnter 200ms ease-out both !important; }
+
+/* 6. Constructor dots: spring appear / fade remove */
+@keyframes dotAppear { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+@keyframes dotRemove { to   { opacity: 0; transform: scale(0); } }
+
+/* 7. Song list stagger — cap at 12 items to avoid long wait on big libraries */
+@keyframes songItemIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.song-item {
+  animation: songItemIn 220ms ease-out both;
+  animation-delay: calc(min(var(--item-index, 0), 12) * 35ms);
+}
+
 /* ── Print ───────────────────────────────────────────────────────── */
 #print-view { display: none; }
 
