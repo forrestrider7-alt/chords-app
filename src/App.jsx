@@ -48,6 +48,12 @@ export default function App() {
 
   useEffect(() => { currentIdRef.current = currentId; }, [currentId]);
 
+  // Remove neu-init after the page-load reveal animation finishes
+  useEffect(() => {
+    const t = setTimeout(() => document.body.classList.remove('neu-init'), 650);
+    return () => clearTimeout(t);
+  }, []);
+
   const { user, loading: authLoading, signInWithEmail, signUpWithEmail, signInWithMagicLink, signOut } = useAuth();
   const { songs, loading: songsLoading, load: loadSongs, save: saveSong, remove: deleteSong } = useSongs(user);
 
