@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import SplashScreen from './components/SplashScreen';
 import SheetRenderer from './components/SheetRenderer';
 import ChordCtor from './components/ChordCtor';
 import SongsModal from './components/SongsModal';
@@ -10,6 +11,7 @@ import { isConfigured } from './lib/supabase';
 import { exportPDF } from './lib/pdfExport';
 
 export default function App() {
+  const [splashDone, setSplashDone] = useState(false);
   const [rawText,   setRawText]   = useState('');
   const [title,     setTitle]     = useState('');
   const [offset,    setOffset]    = useState(0);   // semitone transpose
@@ -32,11 +34,10 @@ export default function App() {
 
   useEffect(() => { currentIdRef.current = currentId; }, [currentId]);
 
-  // Remove neu-init after the page-load reveal animation finishes
-  useEffect(() => {
-    const t = setTimeout(() => document.body.classList.remove('neu-init'), 5000);
-    return () => clearTimeout(t);
-  }, []);
+  function handleSplashExitStart() {
+    document.body.classList.add('neu-init');
+    setTimeout(() => document.body.classList.remove('neu-init'), 7200);
+  }
 
   const { user, loading: authLoading, signInWithEmail, signUpWithEmail, signInWithMagicLink, signOut } = useAuth();
   const { songs, loading: songsLoading, load: loadSongs, save: saveSong, remove: deleteSong } = useSongs(user);
@@ -234,6 +235,13 @@ export default function App() {
 
   return (
     <>
+      {!splashDone && (
+        <SplashScreen
+          onExitStart={handleSplashExitStart}
+          onDone={() => setSplashDone(true)}
+        />
+      )}
+
       {/* ── Header ── */}
       <header>
         <div className="logo-wrap">

@@ -44,6 +44,7 @@ header {
   flex-shrink: 0;
   flex-wrap: wrap;
   z-index: 10;
+  box-shadow: 0 4px 18px rgba(23,19,15,.20), 0 2px 5px rgba(23,19,15,.12);
 }
 
 .logo-wrap  { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; flex-shrink: 0; }
@@ -71,7 +72,7 @@ header {
 
 /* Neumorphic control buttons */
 .neu-btn {
-  padding: 6px 11px; border-radius: 13px; background: #F4EAD6;
+  padding: 6px 11px; border-radius: 13px; background: var(--card);
   font-weight: 900; font-size: 13px; color: var(--dark); border: none; cursor: pointer;
   font-family: inherit;
   box-shadow: -4px -4px 8px rgba(255,252,243,.9), 4px 4px 10px rgba(23,19,15,.18);
@@ -94,10 +95,10 @@ header {
   transition: all .1s;
 }
 .tog-on  { background: var(--green); color: var(--sheet); box-shadow: inset 4px 4px 8px rgba(0,0,0,.35), inset -4px -4px 8px rgba(255,255,255,.15); }
-.tog-off { background: #F4EAD6; color: rgba(23,19,15,.62); box-shadow: -5px -5px 10px rgba(255,252,243,.9), 5px 5px 12px rgba(23,19,15,.18); }
+.tog-off { background: var(--card); color: rgba(23,19,15,.62); box-shadow: -5px -5px 10px rgba(255,252,243,.9), 5px 5px 12px rgba(23,19,15,.18); }
 
 .act-btn {
-  padding: 10px 14px; border-radius: 18px; background: #F4EAD6;
+  padding: 10px 14px; border-radius: 18px; background: var(--card);
   font-size: 9px; font-weight: 900; letter-spacing: .1em; color: var(--dark);
   box-shadow: -5px -5px 11px rgba(255,252,243,.9), 5px 5px 13px rgba(23,19,15,.18);
   border: none; cursor: pointer; font-family: inherit;
@@ -121,7 +122,11 @@ header {
 main { display: grid; grid-template-columns: 25fr 75fr; flex: 1; min-height: 0; overflow: hidden; }
 
 /* ── Editor panel ────────────────────────────────────────────────── */
-#ed-panel { background: var(--dark); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+#ed-panel {
+  position: relative;
+  background: var(--dark); display: flex; flex-direction: column; overflow: hidden; min-height: 0;
+  box-shadow: 4px 0 22px rgba(23,19,15,.26), 2px 0 6px rgba(23,19,15,.14);
+}
 
 .syn-hint { padding: 9px 14px; border-bottom: 1px solid rgba(239,227,203,.18); flex-shrink: 0; }
 .syn-hdr { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
@@ -317,7 +322,7 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
 .chord-res-approx { font-size: 20px; color: var(--red); }
 .chord-res-code { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--red); margin-top: 5px; }
 
-.barre-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; background: #F4EAD6; box-shadow: -6px -6px 12px rgba(255,252,243,.9), 6px 6px 14px rgba(23,19,15,.18); }
+.barre-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--card); box-shadow: -6px -6px 12px rgba(255,252,243,.9), 6px 6px 14px rgba(23,19,15,.18); }
 .barre-lbl { font-size: 10px; font-weight: 900; letter-spacing: .12em; color: var(--dark); }
 .barre-sub { font-size: 8.5px; font-weight: 500; color: rgba(23,19,15,.6); margin-top: 1px; }
 .barre-btns { display: flex; gap: 5px; }
@@ -432,7 +437,12 @@ body.neu-init .logo-sub {
   animation-delay: 700ms;
 }
 
-/* 10. Page-load neumorphic reveal — outset buttons (raise from flat) */
+/* 10. Page-load neumorphic reveal — outset buttons (raise from flat + brief lighter flash) */
+@keyframes neuBtnReveal {
+  0%  { box-shadow: none; background: var(--card); }
+  55% { background: #F4EAD6; }
+  100%{}
+}
 @keyframes neuRevealOut {
   from { box-shadow: none; }
 }
@@ -442,7 +452,10 @@ body.neu-init .logo-sub {
 }
 body.neu-init .act-btn,
 body.neu-init .neu-btn,
-body.neu-init .tog-off,
+body.neu-init .tog-off {
+  animation: neuBtnReveal 500ms ease-out both;
+  animation-delay: calc(var(--btn-i, 0) * 50ms + 1100ms);
+}
 body.neu-init .sheet-card {
   animation: neuRevealOut 500ms ease-out both;
   animation-delay: calc(var(--btn-i, 0) * 50ms + 1100ms);
@@ -454,13 +467,45 @@ body.neu-init .key-pill {
   animation-delay: calc(var(--btn-i, 0) * 50ms + 1100ms);
 }
 
-/* 11. Editor panel unroll top→bottom */
+/* 10b. Header shadow animates in with button wave */
+@keyframes headerShadowIn {
+  from { box-shadow: 0 1px 0 rgba(23,19,15,.08); }
+  to   { box-shadow: 0 4px 18px rgba(23,19,15,.20), 0 2px 5px rgba(23,19,15,.12); }
+}
+body.neu-init header {
+  animation: headerShadowIn 1200ms ease-out both;
+  animation-delay: 1100ms;
+}
+
+/* 11. Editor panel unroll top→bottom + shadow + soft bottom edge */
 @keyframes edPanelReveal {
   from { clip-path: inset(0 0 100% 0); }
   to   { clip-path: inset(0 0 0%   0); }
 }
+@keyframes edPanelShadowIn {
+  from { box-shadow: 1px 0 0 rgba(23,19,15,.08); }
+  to   { box-shadow: 4px 0 22px rgba(23,19,15,.26), 2px 0 6px rgba(23,19,15,.14); }
+}
+@keyframes edPanelEdgeFade {
+  0%   { opacity: 1; }
+  70%  { opacity: 0.6; }
+  100% { opacity: 0; }
+}
 body.neu-init #ed-panel {
-  animation: edPanelReveal 650ms ease-out both;
+  animation:
+    edPanelReveal    650ms ease-out both,
+    edPanelShadowIn  800ms ease-out both;
+  animation-delay: 1900ms, 2400ms;
+}
+body.neu-init #ed-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--dark));
+  pointer-events: none;
+  z-index: 2;
+  animation: edPanelEdgeFade 650ms ease-out both;
   animation-delay: 1900ms;
 }
 
@@ -493,6 +538,97 @@ body.neu-init #prev-panel {
 .song-item {
   animation: songItemIn 220ms ease-out both;
   animation-delay: calc(min(var(--item-index, 0), 12) * 35ms);
+}
+
+/* ── Splash screen ───────────────────────────────────────────────── */
+.splash-ov {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+
+@keyframes splashOvOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+.splash-ov--exit {
+  animation: splashOvOut 500ms ease-in both;
+  pointer-events: none;
+}
+
+/* Dot grid */
+.splash-dots {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  grid-template-rows: repeat(18, 1fr);
+  pointer-events: none;
+}
+
+.splash-dot {
+  place-self: center;
+  width: 2px; height: 2px; border-radius: 50%;
+  background: rgba(23,19,15,1);
+  animation: splashDotIn 350ms ease-out both;
+  animation-delay: calc(var(--diag) * 260ms);
+  opacity: 0;
+}
+
+@keyframes splashDotIn {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: var(--max-op, .14); transform: scale(1); }
+}
+
+/* Splash logo */
+.splash-logo {
+  position: relative; z-index: 1;
+  display: flex; gap: 4px;
+  font-family: 'Reggae One', 'Shippori Mincho B1', serif;
+  font-size: 110px; line-height: 1;
+  color: var(--dark); letter-spacing: .01em;
+  transform: scaleX(.95); transform-origin: center;
+  user-select: none;
+}
+
+.splash-ch {
+  position: relative;
+  display: inline-block;
+}
+
+/* invisible size-holder keeps wrapper at correct dimensions */
+.splash-ch-s {
+  display: block;
+  visibility: hidden;
+}
+
+/* shadow-only: color transparent so only the gold text-shadow renders */
+.splash-ch-shd {
+  position: absolute; top: 0; left: 0;
+  color: transparent;
+  animation: splashShadowIn 700ms ease-out both;
+  animation-delay: calc(var(--chi) * 480ms);
+  opacity: 0;
+}
+
+@keyframes splashShadowIn {
+  from { opacity: 0; text-shadow: 1px 1px 0 rgba(223,160,93,0); }
+  to   { opacity: 1; text-shadow: 8px 8px 0 var(--gold); }
+}
+
+/* clip-path halves */
+.splash-ch-l {
+  position: absolute; top: 0; left: 0;
+  display: block;
+  animation: splashLayerIn 380ms ease-out both;
+  opacity: 0;
+}
+
+.splash-ch-t { clip-path: inset(0 0 50% 0); animation-delay: calc(var(--chi) * 480ms); }
+.splash-ch-b { clip-path: inset(50% 0 0 0); animation-delay: calc(var(--chi) * 480ms + 260ms); }
+
+@keyframes splashLayerIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Print ───────────────────────────────────────────────────────── */
