@@ -1,3 +1,19 @@
+/* ── Local fonts ────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Eurofurence';
+  src: url('/fonts/eurof35.ttf') format('truetype');
+  font-weight: 100 900;   /* map all weights — only one weight file exists */
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Eurofurence';
+  src: url('/fonts/eurof36.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* ── Design tokens ─────────────────────────────────────────────── */
 :root {
   --bg:       #DED2BA;
@@ -17,7 +33,7 @@ html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden;
 
 body {
   background: var(--bg);
-  font-family: 'Zen Kaku Gothic New', system-ui, sans-serif;
+  font-family: 'Eurofurence', 'Zen Kaku Gothic New', system-ui, sans-serif;
   color: var(--dark);
   display: flex;
   flex-direction: column;
