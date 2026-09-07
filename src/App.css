@@ -631,6 +631,66 @@ body.neu-init #prev-panel {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Chord Constructor animations ───────────────────────────────── */
+
+/* 2.1a Fretboard grid: lines draw themselves on modal open */
+@keyframes fretLineIn {
+  from { stroke-dashoffset: 140; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes strLineIn {
+  from { stroke-dashoffset: 172; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.ctor-fret-line {
+  stroke-dasharray: 140;
+  animation: fretLineIn 360ms ease-out both;
+  animation-delay: calc(var(--li, 0) * 50ms);
+}
+
+.ctor-str-line {
+  stroke-dasharray: 172;
+  animation: strLineIn 360ms ease-out both;
+  animation-delay: calc(var(--si, 0) * 40ms + 200ms);
+}
+
+/* 2.1b Barre row: neumorphic embossing after grid draws */
+.ctor-barre-row {
+  animation: neuBtnReveal 420ms ease-out both;
+  animation-delay: 480ms;
+}
+
+/* 2.1c Recognized (top) + Fingers (bottom): slide toward each other simultaneously */
+@keyframes ctorPanelTop {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ctorPanelBot {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ctor-panel-top {
+  animation: ctorPanelTop 280ms ease-out both;
+  animation-delay: 650ms;
+}
+.ctor-panel-bot {
+  animation: ctorPanelBot 280ms ease-out both;
+  animation-delay: 650ms;
+}
+
+/* 2.2 Barre bar in constructor: grows left→right */
+@keyframes barreGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.ctor-barre-bar {
+  transform-origin: left center;
+  animation: barreGrow 300ms ease-in-out both;
+}
+
 /* ── Print ───────────────────────────────────────────────────────── */
 #print-view { display: none; }
 

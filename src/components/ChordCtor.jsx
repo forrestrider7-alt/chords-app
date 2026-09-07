@@ -252,31 +252,38 @@ export default function ChordCtor({ onInsert, onClose }) {
               viewBox={`0 0 ${C_SVG_W} ${C_SVG_H}`}
               style={{ display: 'block', overflow: 'visible' }}
             >
-              {/* Fret lines */}
+              {/* Fret lines — drawn via stroke-dashoffset on modal open */}
               {Array.from({ length: FRETS + 1 }, (_, i) => (
                 <line key={`fl${i}`}
                   x1={C_PAD} y1={i * C_ROW_H}
                   x2={C_PAD + C_COL_W * (STRINGS - 1)} y2={i * C_ROW_H}
                   stroke="#17130F" strokeWidth={i === 0 ? 2.5 : 1.5}
+                  className="ctor-fret-line"
+                  style={{ '--li': i }}
                 />
               ))}
 
-              {/* String lines */}
+              {/* String lines — staggered after fret lines */}
               {Array.from({ length: STRINGS }, (_, s) => (
                 <line key={`sl${s}`}
                   x1={csx(s)} y1={0}
                   x2={csx(s)} y2={C_SVG_H}
                   stroke="#17130F" strokeWidth={1.5}
+                  className="ctor-str-line"
+                  style={{ '--si': s }}
                 />
               ))}
 
-              {/* Barre bar */}
+              {/* Barre bar — key on barre value re-mounts rect so animation replays */}
               {barre !== null && (
                 <rect
+                  key={barre}
                   x={csx(0) - 6} y={cfy(barre) - 7}
                   width={C_COL_W * (STRINGS - 1) + 12} height={14} rx={7}
                   fill="#AC5045" stroke="#17130F" strokeWidth={1.5}
                   pointerEvents="none"
+                  className="ctor-barre-bar"
+                  style={{ transformOrigin: `${csx(0) - 6}px ${cfy(barre)}px` }}
                 />
               )}
 
@@ -316,7 +323,7 @@ export default function ChordCtor({ onInsert, onClose }) {
 
           {/* Side panel */}
           <div className="ctor-side">
-            <div className="chord-res">
+            <div className="chord-res ctor-panel-top">
               <div className="chord-res-lbl">РАСПОЗНАНО · 判定</div>
               <div className="chord-res-name">
                 {result ? result.name : hasContent ? '?' : '—'}
@@ -325,7 +332,7 @@ export default function ChordCtor({ onInsert, onClose }) {
               <div className="chord-res-code">{shapeStr}</div>
             </div>
 
-            <div className="barre-row">
+            <div className="barre-row ctor-barre-row">
               <div>
                 <div className="barre-lbl">БАРРЭ · 人差し指</div>
                 <div className="barre-sub">лад указательного пальца</div>
@@ -343,7 +350,7 @@ export default function ChordCtor({ onInsert, onClose }) {
               </div>
             </div>
 
-            <div className="fingers-box">
+            <div className="fingers-box ctor-panel-bot">
               <div className="fingers-lbl">ПАЛЬЦЫ</div>
               <div className="finger-dots">
                 {[1, 2, 3, 4].map(n => <div key={n} className="finger-dot">{n}</div>)}

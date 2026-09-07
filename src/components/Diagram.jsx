@@ -94,10 +94,10 @@ export default function Diagram({ chordName, shape, small }) {
       {barre && (
         <rect
           x={PAD_LEFT - 5}
-          y={fy(barre - start) + ROW_H / 2 - 6}
+          y={fy(barre - start) + ROW_H / 2 - 3}
           width={GRID_W + 10}
-          height={12}
-          rx={6}
+          height={6}
+          rx={3}
           fill="#17130F"
         />
       )}
