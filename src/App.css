@@ -366,17 +366,23 @@ textarea::-webkit-scrollbar-thumb { background: rgba(239,227,203,.2); }
 .overlay.open    { animation: overlayFadeIn  220ms ease-out both; }
 .overlay.closing { animation: overlayFadeOut 150ms ease-in  both; }
 
-/* 3. Modal box: blur + scale in, shadow delayed until 65% */
+/* 3. Modal box: blur + scale in; shadow is a separate 2s animation */
 @keyframes modalIn {
-  0%   { opacity: 0; filter: blur(10px); transform: scale(.95); box-shadow: 8px 8px 0 rgba(23,19,15,0); }
-  100% { opacity: 1; filter: blur(0);    transform: scale(1);   box-shadow: 8px 8px 0 rgba(23,19,15,.3); }
+  from { opacity: 0; filter: blur(10px); transform: scale(.95); }
+  to   { opacity: 1; filter: blur(0);    transform: scale(1);   }
+}
+@keyframes modalShadowIn {
+  from { box-shadow: 8px 8px 0 rgba(23,19,15,0);   }
+  to   { box-shadow: 8px 8px 0 rgba(23,19,15,.3);  }
 }
 @keyframes modalOut {
-  from { opacity: 1; transform: scale(1);    }
-  to   { opacity: 0; transform: scale(.96);  }
+  from { opacity: 1; transform: scale(1);   }
+  to   { opacity: 0; transform: scale(.96); }
 }
 .modal {
-  animation: modalIn 280ms cubic-bezier(.22,1,.36,1) both;
+  animation:
+    modalIn       280ms cubic-bezier(.22,1,.36,1) both,
+    modalShadowIn   2s  ease-out                  both;
   will-change: transform, filter, opacity;
 }
 .overlay.closing .modal { animation: modalOut 150ms ease-in both; }
