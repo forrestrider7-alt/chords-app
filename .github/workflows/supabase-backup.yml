@@ -1,0 +1,54 @@
+name: Supabase Daily Backup
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC every day
+  workflow_dispatch:        # allow manual trigger from GitHub UI
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # required to commit and push the backup files
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Set backup date
+        run: echo "DATE=$(date -u +%Y-%m-%d)" >> "$GITHUB_ENV"
+
+      - name: Create backup directory
+        run: mkdir -p "backups/$DATE"
+
+      - name: Dump roles
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase db dump --db-url "$SUPABASE_DB_URL" --role-only -f "backups/$DATE/roles.sql"
+
+      - name: Dump schema
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase db dump --db-url "$SUPABASE_DB_URL" -f "backups/$DATE/schema.sql"
+
+      - name: Dump data
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f "backups/$DATE/data.sql"
+
+      - name: Commit and push backup
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backups/
+          if ! git diff --staged --quiet; then
+            git commit -m "Supabase backup $DATE"
+            git push
+          else
+            echo "Nothing to commit — backup already exists for $DATE"
+          fi
