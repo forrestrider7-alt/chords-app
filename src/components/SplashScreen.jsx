@@ -1,19 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 
 const CHARS    = ['コ', 'ー', 'ド', '帳'];
-const DOT_COLS = 28;
-const DOT_ROWS = 18;
+const DOT_COLS = 56;
+const DOT_ROWS = 36;
 
 export default function SplashScreen({ onExitStart, onDone }) {
   const [phase, setPhase] = useState('dots'); // dots | logo | exit
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('logo'), 900);
+    const t1 = setTimeout(() => setPhase('logo'), 600);
     const t2 = setTimeout(() => {
       setPhase('exit');
       onExitStart();
-    }, 3300);
-    const t3 = setTimeout(onDone, 3800);
+    }, 2200);
+    const t3 = setTimeout(onDone, 2700);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

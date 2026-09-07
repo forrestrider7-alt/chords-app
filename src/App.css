@@ -591,7 +591,7 @@ body.neu-init #prev-panel {
   to   { opacity: var(--max-op, .14); transform: scale(1); }
 }
 
-/* Splash logo */
+/* Splash logo — Phase 2: neumorphic emboss of entire logo as one block */
 .splash-logo {
   position: relative; z-index: 1;
   display: flex; gap: 4px;
@@ -600,29 +600,30 @@ body.neu-init #prev-panel {
   color: var(--dark); letter-spacing: .01em;
   transform: scaleX(.95); transform-origin: center;
   user-select: none;
+  animation: splashLogoNeu 500ms ease-out both;
+  animation-delay: 500ms; /* starts once last char is visible (100ms×3 stagger + 200ms anim) */
 }
 
-/* Each character: neumorphic emboss — flat to raised, same language as buttons */
-.splash-ch {
-  display: inline-block;
-  animation: splashCharNeu 700ms cubic-bezier(.34,1.56,.64,1) both;
-  animation-delay: calc(var(--chi) * 500ms);
-}
-
-@keyframes splashCharNeu {
-  from {
-    opacity: 0;
-    text-shadow: none;
-    transform: scale(.88) translateY(6px);
-  }
+@keyframes splashLogoNeu {
+  from { text-shadow: none; }
   to {
-    opacity: 1;
     text-shadow:
       -2px -2px 6px rgba(255,252,243,.75),
        3px  3px 9px rgba(23,19,15,.28),
        6px  6px 0 var(--gold);
-    transform: scale(1) translateY(0);
   }
+}
+
+/* Phase 1: fast overlapping appearance — no shadow, inherited from logo */
+.splash-ch {
+  display: inline-block;
+  animation: splashCharAppear 200ms ease-out both;
+  animation-delay: calc(var(--chi) * 100ms);
+}
+
+@keyframes splashCharAppear {
+  from { opacity: 0; transform: scale(.92) translateY(5px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
 }
 
 /* ── Chord Constructor animations ───────────────────────────────── */
