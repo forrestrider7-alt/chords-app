@@ -319,6 +319,8 @@ export default function App() {
 
       {/* ── Main ── */}
       <main>
+        {/* Blur edge tracker — sibling to #ed-panel, not clipped by its clip-path */}
+        <div id="ed-blur-edge" />
         {/* Editor panel */}
         <div id="ed-panel">
           <div className="syn-hint">

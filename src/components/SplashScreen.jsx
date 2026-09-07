@@ -65,16 +65,7 @@ function SplashLogo() {
   return (
     <div className="splash-logo">
       {CHARS.map((ch, i) => (
-        <div key={i} className="splash-ch" style={{ '--chi': i }}>
-          {/* invisible size holder */}
-          <span className="splash-ch-s">{ch}</span>
-          {/* shadow-only layer: color transparent so only gold text-shadow shows */}
-          <span className="splash-ch-shd" aria-hidden="true">{ch}</span>
-          {/* top half reveals first */}
-          <span className="splash-ch-l splash-ch-t" aria-hidden="true">{ch}</span>
-          {/* bottom half reveals second */}
-          <span className="splash-ch-l splash-ch-b" aria-hidden="true">{ch}</span>
-        </div>
+        <span key={i} className="splash-ch" style={{ '--chi': i }}>{ch}</span>
       ))}
     </div>
   );
